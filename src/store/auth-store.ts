@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+import { storage } from '@/lib/storage';
+
+export enum AuthStatus {
+  Authenticated = 'authenticated',
+  Unauthenticated = 'unauthenticated',
+}
+
+const TOKEN_KEY = 'auth-token';
 
 type AuthState = {
   status: AuthStatus;
@@ -9,9 +16,17 @@ type AuthState = {
   logout: () => void;
 };
 
+const persistedToken = storage.getString(TOKEN_KEY) ?? null;
+
 export const useAuthStore = create<AuthState>((set) => ({
-  status: 'unauthenticated',
-  token: null,
-  login: (token) => set({ status: 'authenticated', token }),
-  logout: () => set({ status: 'unauthenticated', token: null }),
+  status: persistedToken ? AuthStatus.Authenticated : AuthStatus.Unauthenticated,
+  token: persistedToken,
+  login: (token) => {
+    storage.set(TOKEN_KEY, token);
+    set({ status: AuthStatus.Authenticated, token });
+  },
+  logout: () => {
+    storage.remove(TOKEN_KEY);
+    set({ status: AuthStatus.Unauthenticated, token: null });
+  },
 }));

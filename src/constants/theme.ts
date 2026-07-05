@@ -6,6 +6,8 @@ export interface Theme {
   readonly backgroundElement: string;
   readonly backgroundSelected: string;
   readonly textSecondary: string;
+  readonly link: string;
+  readonly error: string;
 }
 
 export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
@@ -15,6 +17,8 @@ export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    link: '#3c87f7',
+    error: '#D92D20',
   },
   dark: {
     text: '#ffffff',
@@ -22,6 +26,8 @@ export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    link: '#3c87f7',
+    error: '#D92D20',
   },
 };
 

@@ -1,11 +1,14 @@
 import { FlashList } from '@shopify/flash-list';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { CommunityListItem } from '@/components/community-list-item';
+import { ErrorState } from '@/components/error-state';
+import { LoadingIndicator } from '@/components/loading-indicator';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCommunities } from '@/hooks/use-communities';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useTheme } from '@/hooks/use-theme';
@@ -65,10 +68,16 @@ export default function CommunitiesScreen() {
                 onPress={() => setSort(option.value)}
                 style={[
                   styles.sortChip,
-                  { backgroundColor: active ? theme.text : theme.backgroundElement },
+                  {
+                    backgroundColor: active ? theme.accent : theme.surface,
+                    borderColor: active ? theme.accent : theme.border,
+                  },
                 ]}
               >
-                <ThemedText type="small" style={{ color: active ? theme.background : theme.text }}>
+                <ThemedText
+                  type="smallBold"
+                  style={{ color: active ? theme.onAccent : theme.textSecondary }}
+                >
                   {option.label}
                 </ThemedText>
               </Pressable>
@@ -79,18 +88,20 @@ export default function CommunitiesScreen() {
 
       {isLoading ? (
         <ThemedView style={styles.centered}>
-          <ActivityIndicator color={theme.text} />
+          <LoadingIndicator />
         </ThemedView>
       ) : isError ? (
         <ThemedView style={styles.centered}>
-          <ThemedText type="small">Something went wrong loading communities.</ThemedText>
-          <Pressable onPress={() => refetch()}>
-            <ThemedText type="linkPrimary">Retry</ThemedText>
-          </Pressable>
+          <ErrorState
+            message="Something went wrong loading communities."
+            onRetry={() => refetch()}
+          />
         </ThemedView>
       ) : communities.length === 0 ? (
         <ThemedView style={styles.centered}>
-          <ThemedText type="small">No communities found.</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            No communities found.
+          </ThemedText>
         </ThemedView>
       ) : (
         <FlashList
@@ -106,7 +117,7 @@ export default function CommunitiesScreen() {
           ListFooterComponent={
             isFetchingNextPage ? (
               <ThemedView style={styles.footer}>
-                <ActivityIndicator color={theme.text} />
+                <LoadingIndicator size={32} />
               </ThemedView>
             ) : null
           }
@@ -121,35 +132,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   controls: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-    gap: 12,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.sm,
+    gap: Spacing.md,
   },
   sortRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: Spacing.sm,
   },
   sortChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
   },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: Spacing.sm,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xl,
   },
   separator: {
-    height: 12,
+    height: Spacing.md,
   },
   footer: {
-    paddingVertical: 16,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
 });

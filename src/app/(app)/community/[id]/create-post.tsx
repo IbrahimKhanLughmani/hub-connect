@@ -1,10 +1,14 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { Spacing } from '@/constants/theme';
 import { useCreatePost } from '@/hooks/use-create-post';
 import { useDraftPost } from '@/hooks/use-draft-post';
 import { useTheme } from '@/hooks/use-theme';
@@ -30,6 +34,7 @@ function validate(title: string, body: string): FormErrors {
 
 export default function CreatePostScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const email = useAuthStore((state) => state.email);
   const { title, setTitle, body, setBody, clearDraft } = useDraftPost(id);
@@ -56,61 +61,69 @@ export default function CreatePostScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">New Post</ThemedText>
-
-      <ThemedView style={styles.form}>
-        <ThemedTextInput
-          label="Title"
-          value={title}
-          onChangeText={setTitle}
-          error={errors.title}
-          placeholder="What's on your mind?"
-        />
-        <ThemedTextInput
-          label="Body"
-          value={body}
-          onChangeText={setBody}
-          error={errors.body}
-          placeholder="Share the details"
-          multiline
-          numberOfLines={4}
-          style={styles.bodyInput}
-        />
-        <Pressable
-          disabled={createPostMutation.isPending}
-          style={[
-            styles.button,
-            { backgroundColor: theme.text, opacity: createPostMutation.isPending ? 0.6 : 1 },
-          ]}
-          onPress={handleSubmit}
-        >
-          <ThemedText type="smallBold" style={{ color: theme.background }}>
-            Post
-          </ThemedText>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ThemedView
+        style={[
+          styles.container,
+          { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg },
+        ]}
+      >
+        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.closeButton}>
+          <Ionicons name="close" size={24} color={theme.text} />
         </Pressable>
+
+        <ThemedText type="eyebrow" themeColor="textSecondary">
+          Share with your community
+        </ThemedText>
+        <ThemedText type="title">New Post</ThemedText>
+
+        <ThemedView style={styles.form}>
+          <ThemedTextInput
+            label="Title"
+            value={title}
+            onChangeText={setTitle}
+            error={errors.title}
+            placeholder="What's on your mind?"
+          />
+          <ThemedTextInput
+            label="Body"
+            value={body}
+            onChangeText={setBody}
+            error={errors.body}
+            placeholder="Share the details"
+            multiline
+            numberOfLines={4}
+            style={styles.bodyInput}
+          />
+          <Button label="Post" onPress={handleSubmit} loading={createPostMutation.isPending} />
+        </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    gap: 24,
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    marginBottom: Spacing.sm,
   },
   form: {
-    gap: 16,
+    gap: Spacing.lg,
+    marginTop: Spacing.md,
   },
   bodyInput: {
     minHeight: 96,
     textAlignVertical: 'top',
-  },
-  button: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
   },
 });

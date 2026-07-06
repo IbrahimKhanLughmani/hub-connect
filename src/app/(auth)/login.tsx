@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
+import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/store/auth-store';
 
@@ -46,7 +48,20 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Welcome back</ThemedText>
+      <ThemedView style={styles.hero}>
+        <ThemedView style={[styles.mark, { backgroundColor: theme.accent }]}>
+          <ThemedText type="title" themeColor="onAccent">
+            H
+          </ThemedText>
+        </ThemedView>
+        <ThemedText type="eyebrow" themeColor="textSecondary">
+          Community Hub
+        </ThemedText>
+        <ThemedText type="title">Welcome back</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.heroSubtitle}>
+          Sign in to browse and manage your communities.
+        </ThemedText>
+      </ThemedView>
 
       <ThemedView style={styles.form}>
         <ThemedTextInput
@@ -67,11 +82,7 @@ export default function LoginScreen() {
           secureTextEntry
           placeholder="••••••••"
         />
-        <Pressable style={[styles.button, { backgroundColor: theme.text }]} onPress={handleSubmit}>
-          <ThemedText type="smallBold" style={{ color: theme.background }}>
-            Log in
-          </ThemedText>
-        </Pressable>
+        <Button label="Log in" onPress={handleSubmit} />
       </ThemedView>
     </ThemedView>
   );
@@ -81,15 +92,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 24,
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.xxl,
+  },
+  hero: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  mark: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  heroSubtitle: {
+    textAlign: 'center',
   },
   form: {
-    gap: 16,
-  },
-  button: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
+    gap: Spacing.lg,
   },
 });

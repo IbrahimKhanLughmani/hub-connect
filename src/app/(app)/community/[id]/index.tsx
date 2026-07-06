@@ -1,12 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { Link, useLocalSearchParams } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/button';
 import { CommunityPostItem } from '@/components/community-post-item';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { ErrorState } from '@/components/error-state';
+import { LoadingIndicator } from '@/components/loading-indicator';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCommunity } from '@/hooks/use-community';
 import { useJoinCommunity, useLeaveCommunity } from '@/hooks/use-community-membership';
 import { useCreatePost } from '@/hooks/use-create-post';
@@ -16,6 +22,7 @@ import type { Post } from '@/types/post';
 
 function CommunityDetailsContent() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const communityQuery = useCommunity(id);
@@ -58,19 +65,26 @@ function CommunityDetailsContent() {
 
   if (communityQuery.isLoading) {
     return (
-      <ThemedView style={styles.centered}>
-        <ActivityIndicator color={theme.text} />
+      <ThemedView style={[styles.centered, { paddingTop: insets.top }]}>
+        <LoadingIndicator />
       </ThemedView>
     );
   }
 
   if (communityQuery.isError || !community) {
     return (
-      <ThemedView style={styles.centered}>
-        <ThemedText type="small">Couldn&apos;t load this community.</ThemedText>
-        <Pressable onPress={() => communityQuery.refetch()}>
-          <ThemedText type="linkPrimary">Retry</ThemedText>
+      <ThemedView style={[styles.centered, { paddingTop: insets.top }]}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={[styles.errorBackButton, { top: insets.top + Spacing.md }]}
+        >
+          <Ionicons name="chevron-back" size={24} color={theme.text} />
         </Pressable>
+        <ErrorState
+          message="Couldn't load this community."
+          onRetry={() => communityQuery.refetch()}
+        />
       </ThemedView>
     );
   }
@@ -82,78 +96,92 @@ function CommunityDetailsContent() {
       data={posts}
       keyExtractor={(item) => item.id}
       renderItem={renderPost}
-      contentContainerStyle={styles.listContent}
+      style={{ backgroundColor: theme.background }}
+      contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.xl }}
       ItemSeparatorComponent={() => <ThemedView style={styles.separator} />}
       refreshing={postsQuery.isRefetching}
       onRefresh={postsQuery.refetch}
       ListHeaderComponent={
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">{community.name}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {community.description}
-          </ThemedText>
-
-          <ThemedView style={styles.statsRow}>
-            <ThemedText type="small" themeColor="textSecondary">
-              {community.memberCount.toLocaleString()} members
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {postsQuery.isLoading ? '…' : posts.length} posts
-            </ThemedText>
-          </ThemedView>
-
-          <Pressable
-            disabled={membershipPending}
-            onPress={handleToggleMembership}
+        <ThemedView style={styles.headerWrapper}>
+          <ThemedView
             style={[
-              styles.membershipButton,
-              {
-                backgroundColor: community.isJoined ? theme.backgroundElement : theme.text,
-                opacity: membershipPending ? 0.6 : 1,
-              },
+              styles.hero,
+              { backgroundColor: theme.accent, paddingTop: insets.top + Spacing.md },
             ]}
           >
-            <ThemedText
-              type="smallBold"
-              style={{
-                color: membershipFailed
-                  ? theme.error
-                  : community.isJoined
-                    ? theme.text
-                    : theme.background,
-              }}
-            >
-              {membershipPending
-                ? community.isJoined
-                  ? 'Leaving…'
-                  : 'Joining…'
-                : membershipFailed
-                  ? 'Retry'
-                  : community.isJoined
-                    ? 'Leave'
-                    : 'Join'}
+            <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={24} color={theme.onAccent} />
+            </Pressable>
+            <ThemedText type="eyebrow" themeColor="onAccent">
+              Emaar Community
             </ThemedText>
-          </Pressable>
-
-          <ThemedView style={styles.postsHeadingRow}>
-            <ThemedText type="smallBold">Posts</ThemedText>
-            <Link href={{ pathname: '/community/[id]/create-post', params: { id } }} asChild>
-              <Pressable>
-                <ThemedText type="linkPrimary">New Post</ThemedText>
-              </Pressable>
-            </Link>
+            <ThemedText type="title" themeColor="onAccent">
+              {community.name}
+            </ThemedText>
+            <ThemedText type="small" themeColor="onAccent" style={styles.heroDescription}>
+              {community.description}
+            </ThemedText>
           </ThemedView>
 
-          {postsQuery.isLoading ? (
-            <ActivityIndicator color={theme.text} style={styles.postsLoading} />
-          ) : postsQuery.isError ? (
-            <ThemedView style={styles.postsError}>
-              <ThemedText type="small">Couldn&apos;t load posts.</ThemedText>
-              <Pressable onPress={() => postsQuery.refetch()}>
-                <ThemedText type="linkPrimary">Retry</ThemedText>
-              </Pressable>
+          <ThemedView style={styles.body}>
+            <ThemedView type="surface" elevated style={styles.statsCard}>
+              <ThemedView type="surface" style={styles.statItem}>
+                <Ionicons name="people" size={20} color={theme.accent} />
+                <ThemedText type="title" style={styles.statValue}>
+                  {community.memberCount.toLocaleString()}
+                </ThemedText>
+                <ThemedText type="eyebrow" themeColor="textSecondary">
+                  Members
+                </ThemedText>
+              </ThemedView>
+              <ThemedView style={[styles.statDivider, { backgroundColor: theme.border }]} />
+              <ThemedView type="surface" style={styles.statItem}>
+                <Ionicons name="chatbubble-ellipses" size={20} color={theme.accent} />
+                <ThemedText type="title" style={styles.statValue}>
+                  {postsQuery.isLoading ? '—' : posts.length}
+                </ThemedText>
+                <ThemedText type="eyebrow" themeColor="textSecondary">
+                  Posts
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
-          ) : null}
+
+            <Button
+              variant={community.isJoined ? 'secondary' : 'primary'}
+              danger={membershipFailed}
+              loading={membershipPending}
+              icon={
+                membershipFailed
+                  ? undefined
+                  : community.isJoined
+                    ? 'checkmark-circle'
+                    : 'add-circle-outline'
+              }
+              label={membershipFailed ? 'Retry' : community.isJoined ? 'Leave' : 'Join'}
+              onPress={handleToggleMembership}
+            />
+
+            <ThemedView style={styles.postsHeadingRow}>
+              <ThemedText type="subtitle">Posts</ThemedText>
+              <Link href={{ pathname: '/community/[id]/create-post', params: { id } }} asChild>
+                <Pressable
+                  style={StyleSheet.flatten([
+                    styles.newPostButton,
+                    { backgroundColor: theme.surfaceSelected },
+                  ])}
+                >
+                  <Ionicons name="add" size={16} color={theme.accent} />
+                  <ThemedText type="linkPrimary">New Post</ThemedText>
+                </Pressable>
+              </Link>
+            </ThemedView>
+
+            {postsQuery.isLoading ? (
+              <LoadingIndicator size={32} />
+            ) : postsQuery.isError ? (
+              <ErrorState message="Couldn't load posts." onRetry={() => postsQuery.refetch()} />
+            ) : null}
+          </ThemedView>
         </ThemedView>
       }
       ListEmptyComponent={
@@ -180,43 +208,70 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: Spacing.sm,
   },
-  listContent: {
-    paddingBottom: 24,
+  errorBackButton: {
+    position: 'absolute',
+    left: Spacing.lg,
   },
-  header: {
-    padding: 16,
-    gap: 8,
+  headerWrapper: {
+    gap: 0,
   },
-  statsRow: {
+  hero: {
+    paddingBottom: Spacing.xxxl,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.xs,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.sm,
+  },
+  heroDescription: {
+    marginTop: Spacing.xs,
+    lineHeight: 20,
+    opacity: 0.9,
+  },
+  body: {
+    paddingHorizontal: Spacing.lg,
+    marginTop: -Spacing.xl,
+    gap: Spacing.lg,
+  },
+  statsCard: {
     flexDirection: 'row',
-    gap: 16,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    marginTop: Spacing.sm,
   },
-  membershipButton: {
-    marginTop: 8,
-    paddingVertical: 10,
-    borderRadius: 8,
+  statItem: {
+    flex: 1,
     alignItems: 'center',
+    gap: 4,
+  },
+  statValue: {
+    fontSize: 22,
+    lineHeight: 26,
+  },
+  statDivider: {
+    width: StyleSheet.hairlineWidth,
   },
   postsHeadingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
   },
-  postsLoading: {
-    marginTop: 8,
-  },
-  postsError: {
-    marginTop: 8,
+  newPostButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
   },
   emptyPosts: {
     textAlign: 'center',
-    marginTop: 24,
+    marginTop: Spacing.xl,
   },
   separator: {
-    height: 12,
+    height: Spacing.md,
   },
 });

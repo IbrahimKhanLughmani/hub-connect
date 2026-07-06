@@ -202,18 +202,3 @@ self-documenting at call sites.
 - Only join/leave mutations are registered for offline-queue resumption after an app restart;
   post creation pauses/resumes correctly within a live session but wasn't extended to the same
   restart-survival pattern, since the assignment specifically calls out join/leave for queueing.
-
-## Future Improvements
-
-- Extend the resumable-mutation-defaults pattern (currently join/leave only) to post creation, so
-  a post composed offline survives an app kill before syncing.
-- Unit and integration tests (services, hooks, and critical screens) — none exist yet.
-- Accessibility pass (screen reader labels, focus order, contrast checks) — the theming system
-  supports it structurally, but hasn't been audited.
-- Verify the Emaar community list/names against an official, current source.
-- Derive the MMKV encryption key from the OS Keychain/Keystore if this ever stored real credentials.
-- Sticky search/sort header on the Community List screen instead of scrolling away with the list.
-- CI pipeline running lint, typecheck, and format:check on every push.
-- Feature-based folder restructuring (grouping by `communities/`, `posts/`, `auth/` instead of by
-  layer) if the codebase grows significantly beyond its current size.
-- Analytics/event tracking for key actions (join, leave, post created).

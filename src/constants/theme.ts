@@ -2,36 +2,62 @@ import { Platform } from 'react-native';
 
 export interface Theme {
   readonly text: string;
-  readonly background: string;
-  readonly backgroundElement: string;
-  readonly backgroundSelected: string;
   readonly textSecondary: string;
+  readonly background: string;
+  readonly surface: string;
+  readonly surfaceSelected: string;
+  readonly border: string;
+  readonly accent: string;
+  readonly onAccent: string;
   readonly link: string;
   readonly error: string;
 }
 
 export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
-    link: '#3c87f7',
-    error: '#D92D20',
+    text: '#16212B',
+    textSecondary: '#5C6B77',
+    background: '#F7F9FB',
+    surface: '#FFFFFF',
+    surfaceSelected: '#E8EEF3',
+    border: '#DCE4EA',
+    accent: '#1E4B6E',
+    onAccent: '#FFFFFF',
+    link: '#1E4B6E',
+    error: '#C0392B',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
-    link: '#3c87f7',
-    error: '#D92D20',
+    text: '#EDF2F5',
+    textSecondary: '#9AA8B2',
+    background: '#0F1418',
+    surface: '#1A2128',
+    surfaceSelected: '#20303D',
+    border: '#2C3A44',
+    accent: '#5B9BD5',
+    onAccent: '#FFFFFF',
+    link: '#5B9BD5',
+    error: '#E5675F',
   },
 };
 
 export type ThemeColor = keyof Theme;
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+} as const;
+
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  pill: 999,
+} as const;
 
 export const Fonts = Platform.select({
   ios: {

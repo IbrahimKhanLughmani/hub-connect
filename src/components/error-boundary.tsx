@@ -1,8 +1,10 @@
 import { Component, type ReactNode } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
+import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Spacing } from '@/constants/theme';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -27,13 +29,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.error) {
       return (
         <ThemedView style={styles.container}>
+          <ThemedText type="eyebrow" themeColor="error">
+            Error
+          </ThemedText>
           <ThemedText type="subtitle">Something went wrong</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="small" themeColor="textSecondary" style={styles.message}>
             {this.state.error.message}
           </ThemedText>
-          <Pressable onPress={this.handleReset}>
-            <ThemedText type="linkPrimary">Try again</ThemedText>
-          </Pressable>
+          <Button variant="secondary" label="Try again" onPress={this.handleReset} />
         </ThemedView>
       );
     }
@@ -47,7 +50,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    padding: 24,
+    gap: Spacing.sm,
+    padding: Spacing.xl,
+  },
+  message: {
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
 });

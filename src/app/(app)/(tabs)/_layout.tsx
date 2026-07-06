@@ -1,7 +1,11 @@
 import { Tabs } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { ThemeToggleButton } from '@/components/theme-toggle-button';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/store/auth-store';
 
 function LogoutButton() {
@@ -9,17 +13,46 @@ function LogoutButton() {
 
   return (
     <Pressable onPress={logout} hitSlop={8} style={styles.logoutButton}>
-      <ThemedText type="link">Log out</ThemedText>
+      <ThemedText type="link" themeColor="text">
+        Log out
+      </ThemedText>
     </Pressable>
   );
 }
 
-export default function TabsLayout() {
+function HomeTabIcon() {
   return (
-    <Tabs>
+    <LottieView
+      source={require('@/assets/animations/home.json')}
+      autoPlay
+      loop
+      style={styles.tabIcon}
+    />
+  );
+}
+
+export default function TabsLayout() {
+  const theme = useTheme();
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.surface },
+        headerTitleStyle: { color: theme.text },
+        headerShadowVisible: false,
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.textSecondary,
+        tabBarStyle: { backgroundColor: theme.surface, borderTopColor: theme.border },
+      }}
+    >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Communities', headerRight: () => <LogoutButton /> }}
+        options={{
+          title: 'Communities',
+          tabBarIcon: () => <HomeTabIcon />,
+          headerLeft: () => <ThemeToggleButton />,
+          headerRight: () => <LogoutButton />,
+        }}
       />
     </Tabs>
   );
@@ -27,6 +60,10 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   logoutButton: {
-    marginRight: 16,
+    marginRight: Spacing.lg,
+  },
+  tabIcon: {
+    width: 32,
+    height: 32,
   },
 });

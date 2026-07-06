@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 
 type ThemedTextInputProps = TextInputProps & {
-  label: string;
+  label?: string;
   error?: string;
 };
 
@@ -14,7 +14,7 @@ export function ThemedTextInput({ label, error, style, ...rest }: ThemedTextInpu
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="smallBold">{label}</ThemedText>
+      {label ? <ThemedText type="smallBold">{label}</ThemedText> : null}
       <TextInput
         style={[
           styles.input,

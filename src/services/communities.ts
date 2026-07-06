@@ -1,6 +1,6 @@
 import { ApiError, ApiErrorKind } from '@/services/api-error';
 import { simulateNetwork } from '@/services/network-simulation';
-import { Community } from '@/types/community';
+import { Community, CommunitySort } from '@/types/community';
 import { PaginatedResult } from '@/types/pagination';
 
 const PAGE_SIZE = 10;
@@ -35,26 +35,33 @@ let communities: Community[] = [
 export async function fetchCommunities(params: {
   page: number;
   search?: string;
+  sort?: CommunitySort;
 }): Promise<PaginatedResult<Community>> {
   await simulateNetwork(600);
 
   const search = params.search?.trim().toLowerCase();
   const filtered = search
     ? communities.filter(
-      (community) =>
-        community.name.toLowerCase().includes(search) ||
-        community.description.toLowerCase().includes(search)
-    )
+        (community) =>
+          community.name.toLowerCase().includes(search) ||
+          community.description.toLowerCase().includes(search)
+      )
     : communities;
 
+  const sorted = [...filtered].sort((a, b) =>
+    params.sort === CommunitySort.MembersDesc
+      ? b.memberCount - a.memberCount
+      : a.name.localeCompare(b.name)
+  );
+
   const start = (params.page - 1) * PAGE_SIZE;
-  const items = filtered.slice(start, start + PAGE_SIZE);
-  const hasNextPage = start + PAGE_SIZE < filtered.length;
+  const items = sorted.slice(start, start + PAGE_SIZE);
+  const hasNextPage = start + PAGE_SIZE < sorted.length;
 
   return {
     items,
     nextPage: hasNextPage ? params.page + 1 : null,
-    totalCount: filtered.length,
+    totalCount: sorted.length,
   };
 }
 

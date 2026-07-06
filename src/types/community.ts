@@ -5,3 +5,8 @@ export interface Community {
   memberCount: number;
   isJoined: boolean;
 }
+
+export enum CommunitySort {
+  NameAsc = 'name-asc',
+  MembersDesc = 'members-desc',
+}

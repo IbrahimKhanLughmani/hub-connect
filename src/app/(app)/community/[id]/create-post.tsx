@@ -37,6 +37,10 @@ export default function CreatePostScreen() {
   const createPostMutation = useCreatePost();
 
   function handleSubmit() {
+    if (createPostMutation.isPending) {
+      return;
+    }
+
     const nextErrors = validate(title, body);
     setErrors(nextErrors);
 

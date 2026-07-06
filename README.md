@@ -202,3 +202,30 @@ self-documenting at call sites.
 - Only join/leave mutations are registered for offline-queue resumption after an app restart;
   post creation pauses/resumes correctly within a live session but wasn't extended to the same
   restart-survival pattern, since the assignment specifically calls out join/leave for queueing.
+
+## Future Improvements
+
+With additional time, these are the areas I'd prioritize next:
+
+- **Testing.** No automated tests exist yet. I'd start with unit tests for the pure logic
+  (`services/*.ts`, `lib/mutation-defaults.ts`, form validation) and integration tests for the
+  offline-queue and optimistic-update flows, since those are the highest-risk, hardest-to-manually-
+  verify paths.
+- **Post creation offline-restart queueing.** Extend the same `setMutationDefaults` +
+  `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
+  submitted while offline also survives an app kill/restart before reconnecting, not just a live
+  session.
+- **Duplicate-submission hardening.** The create-post form now guards against a fast double-tap via
+  an explicit `isPending` check, but a broader audit of other mutation-triggering buttons
+  (join/leave) for the same race would be worthwhile.
+- **Accessibility pass.** Explicit `accessibilityLabel`/`accessibilityRole` props, focus order, and
+  screen-reader verification haven't been done — the app is usable but not verified accessible.
+- **CI/CD.** Wire up a GitHub Actions workflow to run `tsc`, `lint`, and tests on every PR, and
+  eventually EAS Build for release artifacts.
+- **Real API integration.** Swap the in-process mock services for a real backend or a proper local
+  mock server, now that the `queryFn`/`mutationFn` boundary already isolates that concern.
+- **Analytics/event tracking.** No usage analytics are wired in; would add a lightweight event layer
+  around key actions (join/leave, post creation, search/sort usage) to inform product decisions.
+- **Feature-based architecture.** The current split (`components/<screen>/`, `hooks/`, `services/`)
+  scales reasonably at this size, but a larger app would benefit from grouping by feature
+  (`features/communities/`, `features/posts/`) instead of by technical layer.

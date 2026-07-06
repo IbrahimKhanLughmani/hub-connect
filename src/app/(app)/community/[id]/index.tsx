@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnimatedCounter } from '@/components/animated-counter';
 import { Button } from '@/components/button';
 import { CommunityPostItem } from '@/components/community-post-item';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -127,9 +128,11 @@ function CommunityDetailsContent() {
             <ThemedView type="surface" elevated style={styles.statsCard}>
               <ThemedView type="surface" style={styles.statItem}>
                 <Ionicons name="people" size={20} color={theme.accent} />
-                <ThemedText type="title" style={styles.statValue}>
-                  {community.memberCount.toLocaleString()}
-                </ThemedText>
+                <AnimatedCounter
+                  value={community.memberCount}
+                  type="title"
+                  style={styles.statValue}
+                />
                 <ThemedText type="eyebrow" themeColor="textSecondary">
                   Members
                 </ThemedText>
@@ -137,9 +140,13 @@ function CommunityDetailsContent() {
               <ThemedView style={[styles.statDivider, { backgroundColor: theme.border }]} />
               <ThemedView type="surface" style={styles.statItem}>
                 <Ionicons name="chatbubble-ellipses" size={20} color={theme.accent} />
-                <ThemedText type="title" style={styles.statValue}>
-                  {postsQuery.isLoading ? '—' : posts.length}
-                </ThemedText>
+                {postsQuery.isLoading ? (
+                  <ThemedText type="title" style={styles.statValue}>
+                    —
+                  </ThemedText>
+                ) : (
+                  <AnimatedCounter value={posts.length} type="title" style={styles.statValue} />
+                )}
                 <ThemedText type="eyebrow" themeColor="textSecondary">
                   Posts
                 </ThemedText>
@@ -163,17 +170,32 @@ function CommunityDetailsContent() {
 
             <ThemedView style={styles.postsHeadingRow}>
               <ThemedText type="subtitle">Posts</ThemedText>
-              <Link href={{ pathname: '/community/[id]/create-post', params: { id } }} asChild>
-                <Pressable
-                  style={StyleSheet.flatten([
+              {community.isJoined ? (
+                <Link href={{ pathname: '/community/[id]/create-post', params: { id } }} asChild>
+                  <Pressable
+                    style={StyleSheet.flatten([
+                      styles.newPostButton,
+                      { backgroundColor: theme.surfaceSelected },
+                    ])}
+                  >
+                    <Ionicons name="add" size={16} color={theme.accent} />
+                    <ThemedText type="linkPrimary">New Post</ThemedText>
+                  </Pressable>
+                </Link>
+              ) : (
+                <ThemedView
+                  style={[
                     styles.newPostButton,
+                    styles.newPostButtonDisabled,
                     { backgroundColor: theme.surfaceSelected },
-                  ])}
+                  ]}
                 >
-                  <Ionicons name="add" size={16} color={theme.accent} />
-                  <ThemedText type="linkPrimary">New Post</ThemedText>
-                </Pressable>
-              </Link>
+                  <Ionicons name="add" size={16} color={theme.textSecondary} />
+                  <ThemedText type="linkPrimary" themeColor="textSecondary">
+                    New Post
+                  </ThemedText>
+                </ThemedView>
+              )}
             </ThemedView>
 
             {postsQuery.isLoading ? (
@@ -258,6 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   newPostButton: {
     flexDirection: 'row',
@@ -266,6 +289,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 6,
     borderRadius: Radius.pill,
+  },
+  newPostButtonDisabled: {
+    opacity: 0.4,
   },
   emptyPosts: {
     textAlign: 'center',

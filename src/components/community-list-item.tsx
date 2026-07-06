@@ -3,6 +3,7 @@ import { Link } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { Avatar } from '@/components/avatar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
@@ -13,10 +14,6 @@ type CommunityListItemProps = {
   community: Community;
 };
 
-function getInitial(name: string) {
-  return name.trim().charAt(0).toUpperCase();
-}
-
 function CommunityListItemComponent({ community }: CommunityListItemProps) {
   const theme = useTheme();
 
@@ -24,11 +21,7 @@ function CommunityListItemComponent({ community }: CommunityListItemProps) {
     <Link href={{ pathname: '/community/[id]', params: { id: community.id } }} asChild>
       <Pressable>
         <ThemedView type="surface" elevated style={styles.container}>
-          <ThemedView style={[styles.avatar, { backgroundColor: theme.accent }]}>
-            <ThemedText type="subtitle" themeColor="onAccent">
-              {getInitial(community.name)}
-            </ThemedText>
-          </ThemedView>
+          <Avatar name={community.name} size={48} />
 
           <ThemedView type="surface" style={styles.content}>
             <ThemedView type="surface" style={styles.header}>
@@ -37,7 +30,7 @@ function CommunityListItemComponent({ community }: CommunityListItemProps) {
               </ThemedText>
               {community.isJoined ? (
                 <ThemedView style={[styles.badge, { backgroundColor: theme.accent }]}>
-                  <ThemedText type="eyebrow" themeColor="onAccent">
+                  <ThemedText type="eyebrow" themeColor="onAccent" style={styles.badgeText}>
                     Joined
                   </ThemedText>
                 </ThemedView>
@@ -78,13 +71,6 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     gap: Spacing.md,
   },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   content: {
     flex: 1,
     gap: 4,
@@ -108,8 +94,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   badge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
+    paddingHorizontal: Spacing.xs + 2,
+    paddingVertical: 2,
     borderRadius: Radius.pill,
+  },
+  badgeText: {
+    fontSize: 9,
+    lineHeight: 12,
   },
 });

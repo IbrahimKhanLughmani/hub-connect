@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
@@ -23,6 +24,8 @@ export default function CommunitiesScreen() {
   const theme = useTheme();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<CommunitySort>(CommunitySort.NameAsc);
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+  const [controlsHeight, setControlsHeight] = useState(0);
   const debouncedSearch = useDebouncedValue(search, 300);
 
   const {
@@ -49,40 +52,36 @@ export default function CommunitiesScreen() {
     }
   }
 
+  function handleSelectSort(value: CommunitySort) {
+    setSort(value);
+    setIsSortMenuOpen(false);
+  }
+
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.controls}>
-        <ThemedTextInput
-          placeholder="Search communities"
-          value={search}
-          onChangeText={setSearch}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <ThemedView style={styles.sortRow}>
-          {SORT_OPTIONS.map((option) => {
-            const active = option.value === sort;
-            return (
-              <Pressable
-                key={option.value}
-                onPress={() => setSort(option.value)}
-                style={[
-                  styles.sortChip,
-                  {
-                    backgroundColor: active ? theme.accent : theme.surface,
-                    borderColor: active ? theme.accent : theme.border,
-                  },
-                ]}
-              >
-                <ThemedText
-                  type="smallBold"
-                  style={{ color: active ? theme.onAccent : theme.textSecondary }}
-                >
-                  {option.label}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
+      <ThemedView
+        style={styles.controls}
+        onLayout={(event) => setControlsHeight(event.nativeEvent.layout.height)}
+      >
+        <ThemedView style={styles.searchRow}>
+          <ThemedView style={styles.searchInput}>
+            <ThemedTextInput
+              placeholder="Search communities"
+              value={search}
+              onChangeText={setSearch}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </ThemedView>
+          <Pressable
+            onPress={() => setIsSortMenuOpen((prev) => !prev)}
+            style={[
+              styles.sortButton,
+              { backgroundColor: theme.surface, borderColor: theme.border },
+            ]}
+          >
+            <Ionicons name="swap-vertical" size={20} color={theme.text} />
+          </Pressable>
         </ThemedView>
       </ThemedView>
 
@@ -108,6 +107,7 @@ export default function CommunitiesScreen() {
           data={communities}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
+          style={{ backgroundColor: theme.background }}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <ThemedView style={styles.separator} />}
           refreshing={isRefetching}
@@ -123,6 +123,36 @@ export default function CommunitiesScreen() {
           }
         />
       )}
+
+      {isSortMenuOpen ? (
+        <>
+          <Pressable style={styles.overlay} onPress={() => setIsSortMenuOpen(false)} />
+          <ThemedView
+            type="surface"
+            elevated
+            style={[
+              styles.sortMenu,
+              { borderColor: theme.border, top: controlsHeight + Spacing.xs },
+            ]}
+          >
+            {SORT_OPTIONS.map((option) => {
+              const active = option.value === sort;
+              return (
+                <Pressable
+                  key={option.value}
+                  onPress={() => handleSelectSort(option.value)}
+                  style={styles.sortMenuItem}
+                >
+                  <ThemedText type="small" style={{ color: active ? theme.accent : theme.text }}>
+                    {option.label}
+                  </ThemedText>
+                  {active ? <Ionicons name="checkmark" size={16} color={theme.accent} /> : null}
+                </Pressable>
+              );
+            })}
+          </ThemedView>
+        </>
+      ) : null}
     </ThemedView>
   );
 }
@@ -135,17 +165,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
-    gap: Spacing.md,
   },
-  sortRow: {
+  searchRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.sm,
   },
-  sortChip: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs + 2,
-    borderRadius: Radius.pill,
+  searchInput: {
+    flex: 1,
+  },
+  sortButton: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  sortMenu: {
+    position: 'absolute',
+    right: Spacing.lg,
+    minWidth: 160,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    paddingVertical: Spacing.xs,
+  },
+  sortMenuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   centered: {
     flex: 1,

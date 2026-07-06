@@ -1,11 +1,13 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { Avatar } from '@/components/avatar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Post, PostStatus } from '@/types/post';
+import { formatRelativeTime } from '@/utils/format-relative-time';
 
 type CommunityPostItemProps = {
   post: Post;
@@ -17,26 +19,37 @@ function CommunityPostItemComponent({ post, onRetry }: CommunityPostItemProps) {
 
   return (
     <ThemedView type="surface" elevated style={styles.container}>
-      <ThemedText type="smallBold">{post.title}</ThemedText>
+      <ThemedView type="surface" style={styles.header}>
+        <Avatar name={post.authorName} size={40} />
+
+        <ThemedView type="surface" style={styles.authorInfo}>
+          <ThemedText type="smallBold" numberOfLines={1}>
+            {post.authorName}
+          </ThemedText>
+          <ThemedText type="eyebrow" themeColor="textSecondary">
+            {formatRelativeTime(post.createdAt)}
+          </ThemedText>
+        </ThemedView>
+      </ThemedView>
+
+      <ThemedText type="smallBold" style={styles.title}>
+        {post.title}
+      </ThemedText>
       <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
         {post.body}
       </ThemedText>
-      <ThemedView type="surface" style={styles.footer}>
-        <ThemedText type="eyebrow" themeColor="textSecondary">
-          {post.authorName}
+
+      {post.status === PostStatus.Pending ? (
+        <ThemedText type="eyebrow" themeColor="textSecondary" style={styles.status}>
+          Posting…
         </ThemedText>
-        {post.status === PostStatus.Pending ? (
-          <ThemedText type="eyebrow" themeColor="textSecondary">
-            Posting…
+      ) : post.status === PostStatus.Failed ? (
+        <Pressable onPress={() => onRetry?.(post)} style={styles.status}>
+          <ThemedText type="eyebrow" style={{ color: theme.error }}>
+            Failed · Retry
           </ThemedText>
-        ) : post.status === PostStatus.Failed ? (
-          <Pressable onPress={() => onRetry?.(post)}>
-            <ThemedText type="eyebrow" style={{ color: theme.error }}>
-              Failed · Retry
-            </ThemedText>
-          </Pressable>
-        ) : null}
-      </ThemedView>
+        </Pressable>
+      ) : null}
     </ThemedView>
   );
 }
@@ -50,13 +63,23 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     marginHorizontal: Spacing.lg,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: 2,
+  },
+  authorInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  title: {
+    marginTop: 2,
+  },
   body: {
     lineHeight: 20,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  status: {
     marginTop: Spacing.xs,
   },
 });

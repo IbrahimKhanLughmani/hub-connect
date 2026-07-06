@@ -1,10 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { postsQueryKey } from '@/lib/query-keys';
 import { fetchPosts } from '@/services/posts';
-
-export function postsQueryKey(communityId: string) {
-  return ['posts', communityId] as const;
-}
 
 export function usePosts(communityId: string) {
   return useQuery({

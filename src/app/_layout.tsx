@@ -1,20 +1,38 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { ErrorBoundary } from '@/components/error-boundary';
+import { OfflineBanner } from '@/components/offline-banner';
 import { queryClient } from '@/lib/query-client';
+import { queryPersister } from '@/lib/query-persister';
+
+const PERSIST_MAX_AGE = 1000 * 60 * 60 * 24;
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: queryPersister, maxAge: PERSIST_MAX_AGE }}
+        onSuccess={() => {
+          void queryClient.resumePausedMutations();
+        }}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <View style={styles.container}>
+            <OfflineBanner />
+            <Stack screenOptions={{ headerShown: false }} />
+          </View>
         </ThemeProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

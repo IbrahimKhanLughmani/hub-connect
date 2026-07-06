@@ -4,8 +4,11 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.3",
+    "@react-native-community/netinfo": "12.0.1",
     "@shopify/flash-list": "2.0.2",
+    "@tanstack/query-sync-storage-persister": "^5.101.2",
     "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-query-persist-client": "^5.101.2",
     "expo": "~57.0.2",
     "expo-constants": "~57.0.3",
     "expo-device": "~57.0.0",

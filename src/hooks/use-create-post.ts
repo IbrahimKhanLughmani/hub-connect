@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { postsQueryKey } from '@/hooks/use-posts';
+import { postsQueryKey } from '@/lib/query-keys';
 import { createPost } from '@/services/posts';
 import { Post, PostStatus } from '@/types/post';
 

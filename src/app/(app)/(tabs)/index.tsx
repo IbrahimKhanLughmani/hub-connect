@@ -66,7 +66,8 @@ export default function CommunitiesScreen() {
                 style={[
                   styles.sortChip,
                   { backgroundColor: active ? theme.text : theme.backgroundElement },
-                ]}>
+                ]}
+              >
                 <ThemedText type="small" style={{ color: active ? theme.background : theme.text }}>
                   {option.label}
                 </ThemedText>

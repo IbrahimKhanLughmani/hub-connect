@@ -111,7 +111,8 @@ function CommunityDetailsContent() {
                 backgroundColor: community.isJoined ? theme.backgroundElement : theme.text,
                 opacity: membershipPending ? 0.6 : 1,
               },
-            ]}>
+            ]}
+          >
             <ThemedText
               type="smallBold"
               style={{
@@ -120,7 +121,8 @@ function CommunityDetailsContent() {
                   : community.isJoined
                     ? theme.text
                     : theme.background,
-              }}>
+              }}
+            >
               {membershipPending
                 ? community.isJoined
                   ? 'Leaving…'

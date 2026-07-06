@@ -1,9 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import {
-  JOIN_COMMUNITY_MUTATION_KEY,
-  LEAVE_COMMUNITY_MUTATION_KEY,
-} from '@/lib/mutation-defaults';
+import { JOIN_COMMUNITY_MUTATION_KEY, LEAVE_COMMUNITY_MUTATION_KEY } from '@/lib/mutation-defaults';
 import { Community } from '@/types/community';
 
 type MembershipMutationContext = { previous?: Community };

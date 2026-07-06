@@ -83,7 +83,8 @@ export default function CreatePostScreen() {
             styles.button,
             { backgroundColor: theme.text, opacity: createPostMutation.isPending ? 0.6 : 1 },
           ]}
-          onPress={handleSubmit}>
+          onPress={handleSubmit}
+        >
           <ThemedText type="smallBold" style={{ color: theme.background }}>
             Post
           </ThemedText>

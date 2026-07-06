@@ -19,7 +19,8 @@ export default function RootLayout() {
         persistOptions={{ persister: queryPersister, maxAge: PERSIST_MAX_AGE }}
         onSuccess={() => {
           void queryClient.resumePausedMutations();
-        }}>
+        }}
+      >
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <View style={styles.container}>
             <OfflineBanner />

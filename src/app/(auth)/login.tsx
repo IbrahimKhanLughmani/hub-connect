@@ -40,7 +40,7 @@ export default function LoginScreen() {
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length === 0) {
-      login(`mock-token-${email}`);
+      login(`mock-token-${email}`, email);
     }
   }
 

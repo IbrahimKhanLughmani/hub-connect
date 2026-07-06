@@ -1,5 +1,6 @@
 import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
+import { useCallback } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 
 import { CommunityPostItem } from '@/components/community-post-item';
@@ -8,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useCommunity } from '@/hooks/use-community';
 import { useJoinCommunity, useLeaveCommunity } from '@/hooks/use-community-membership';
+import { useCreatePost } from '@/hooks/use-create-post';
 import { usePosts } from '@/hooks/use-posts';
 import { useTheme } from '@/hooks/use-theme';
 import type { Post } from '@/types/post';
@@ -20,6 +22,7 @@ function CommunityDetailsContent() {
   const postsQuery = usePosts(id);
   const joinMutation = useJoinCommunity();
   const leaveMutation = useLeaveCommunity();
+  const createPostMutation = useCreatePost();
 
   const community = communityQuery.data;
   const membershipPending = joinMutation.isPending || leaveMutation.isPending;
@@ -35,9 +38,23 @@ function CommunityDetailsContent() {
     }
   }
 
-  function renderPost({ item }: { item: Post }) {
-    return <CommunityPostItem post={item} />;
-  }
+  const handleRetryPost = useCallback(
+    (post: Post) => {
+      createPostMutation.mutate({
+        communityId: post.communityId,
+        title: post.title,
+        body: post.body,
+        authorName: post.authorName,
+        retryPostId: post.id,
+      });
+    },
+    [createPostMutation]
+  );
+
+  const renderPost = useCallback(
+    ({ item }: { item: Post }) => <CommunityPostItem post={item} onRetry={handleRetryPost} />,
+    [handleRetryPost]
+  );
 
   if (communityQuery.isLoading) {
     return (
@@ -116,9 +133,14 @@ function CommunityDetailsContent() {
             </ThemedText>
           </Pressable>
 
-          <ThemedText type="smallBold" style={styles.postsHeading}>
-            Posts
-          </ThemedText>
+          <ThemedView style={styles.postsHeadingRow}>
+            <ThemedText type="smallBold">Posts</ThemedText>
+            <Link href={{ pathname: '/community/[id]/create-post', params: { id } }} asChild>
+              <Pressable>
+                <ThemedText type="linkPrimary">New Post</ThemedText>
+              </Pressable>
+            </Link>
+          </ThemedView>
 
           {postsQuery.isLoading ? (
             <ActivityIndicator color={theme.text} style={styles.postsLoading} />
@@ -175,7 +197,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  postsHeading: {
+  postsHeadingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 16,
   },
   postsLoading: {

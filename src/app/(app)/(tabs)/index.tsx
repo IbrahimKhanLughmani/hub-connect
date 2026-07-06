@@ -66,6 +66,7 @@ export default function CommunitiesScreen() {
         <ThemedView style={styles.searchRow}>
           <ThemedView style={styles.searchInput}>
             <ThemedTextInput
+              icon="search"
               placeholder="Search communities"
               value={search}
               onChangeText={setSearch}

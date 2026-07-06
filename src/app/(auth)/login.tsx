@@ -65,6 +65,7 @@ export default function LoginScreen() {
 
       <ThemedView style={styles.form}>
         <ThemedTextInput
+          icon="mail-outline"
           label="Email"
           value={email}
           onChangeText={setEmail}
@@ -75,11 +76,12 @@ export default function LoginScreen() {
           placeholder="you@example.com"
         />
         <ThemedTextInput
+          icon="lock-closed-outline"
+          isPassword
           label="Password"
           value={password}
           onChangeText={setPassword}
           error={errors.password}
-          secureTextEntry
           placeholder="••••••••"
         />
         <Button label="Log in" onPress={handleSubmit} />

@@ -1,4 +1,4 @@
-import { CommunitySort } from '@/types/community';
+import { CommunitySort } from '@/types';
 
 export const COMMUNITIES_QUERY_KEY = ['communities'] as const;
 

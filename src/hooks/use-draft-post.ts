@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib';
 
 type Draft = {
   title: string;

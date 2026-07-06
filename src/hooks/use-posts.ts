@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { postsQueryKey } from '@/lib/query-keys';
-import { fetchPosts } from '@/services/posts';
+import { postsQueryKey } from '@/lib';
+import { fetchPosts } from '@/services';
 
 export function usePosts(communityId: string) {
   return useQuery({

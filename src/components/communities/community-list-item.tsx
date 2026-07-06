@@ -3,12 +3,10 @@ import { Link } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { Avatar } from '@/components/avatar';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { Community } from '@/types/community';
+import { Avatar, ThemedText, ThemedView } from '@/components';
+import { Radius, Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
+import { Community } from '@/types';
 
 type CommunityListItemProps = {
   community: Community;

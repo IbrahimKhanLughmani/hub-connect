@@ -1,5 +1,5 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { ThemePreference, useThemeStore } from '@/store/theme-store';
+import { ThemePreference, useThemeStore } from '@/store';
 
 export function useResolvedColorScheme(): 'light' | 'dark' {
   const systemScheme = useColorScheme();

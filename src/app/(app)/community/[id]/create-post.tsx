@@ -4,15 +4,10 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedTextInput } from '@/components/themed-text-input';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
-import { useCreatePost } from '@/hooks/use-create-post';
-import { useDraftPost } from '@/hooks/use-draft-post';
-import { useTheme } from '@/hooks/use-theme';
-import { useAuthStore } from '@/store/auth-store';
+import { Button, ThemedText, ThemedTextInput, ThemedView } from '@/components';
+import { Spacing } from '@/constants';
+import { useCreatePost, useDraftPost, useTheme } from '@/hooks';
+import { useAuthStore } from '@/store';
 
 type FormErrors = {
   title?: string;

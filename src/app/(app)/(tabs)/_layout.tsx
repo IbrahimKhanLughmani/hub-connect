@@ -2,11 +2,10 @@ import { Tabs } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemeToggleButton } from '@/components/theme-toggle-button';
-import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { useAuthStore } from '@/store/auth-store';
+import { ThemedText, ThemeToggleButton } from '@/components';
+import { Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
+import { useAuthStore } from '@/store';
 
 function LogoutButton() {
   const logout = useAuthStore((state) => state.logout);

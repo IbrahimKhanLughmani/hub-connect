@@ -1,13 +1,11 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { Avatar } from '@/components/avatar';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { Post, PostStatus } from '@/types/post';
-import { formatRelativeTime } from '@/utils/format-relative-time';
+import { Avatar, ThemedText, ThemedView } from '@/components';
+import { Radius, Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
+import { Post, PostStatus } from '@/types';
+import { formatRelativeTime } from '@/utils';
 
 type CommunityPostItemProps = {
   post: Post;

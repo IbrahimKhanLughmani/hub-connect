@@ -1,7 +1,7 @@
 import { Redirect, Stack } from 'expo-router';
 
-import { useTheme } from '@/hooks/use-theme';
-import { AuthStatus, useAuthStore } from '@/store/auth-store';
+import { useTheme } from '@/hooks';
+import { AuthStatus, useAuthStore } from '@/store';
 
 export default function AppLayout() {
   const theme = useTheme();

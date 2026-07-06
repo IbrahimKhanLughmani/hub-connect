@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib';
 
 export enum AuthStatus {
   Authenticated = 'authenticated',

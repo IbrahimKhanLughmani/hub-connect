@@ -1,8 +1,8 @@
 import { QueryClient } from '@tanstack/react-query';
 
 import { COMMUNITIES_QUERY_KEY, communityQueryKey } from '@/lib/query-keys';
-import { joinCommunity, leaveCommunity } from '@/services/communities';
-import { Community } from '@/types/community';
+import { joinCommunity, leaveCommunity } from '@/services';
+import { Community } from '@/types';
 
 export const JOIN_COMMUNITY_MUTATION_KEY = ['joinCommunity'];
 export const LEAVE_COMMUNITY_MUTATION_KEY = ['leaveCommunity'];

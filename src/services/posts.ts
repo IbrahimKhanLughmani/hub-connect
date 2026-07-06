@@ -1,5 +1,5 @@
 import { simulateNetwork } from '@/services/network-simulation';
-import { Post, PostStatus } from '@/types/post';
+import { Post, PostStatus } from '@/types';
 
 let posts: Post[] = [
   {

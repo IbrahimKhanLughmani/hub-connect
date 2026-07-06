@@ -1,6 +1,6 @@
 import { ActivityIndicator } from 'react-native';
 
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/hooks';
 
 type LoadingIndicatorProps = {
   size?: number;

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { communityQueryKey } from '@/lib/query-keys';
-import { fetchCommunity } from '@/services/communities';
+import { communityQueryKey } from '@/lib';
+import { fetchCommunity } from '@/services';
 
 export function useCommunity(id: string) {
   return useQuery({

@@ -1,4 +1,4 @@
-import { Colors, Theme } from '@/constants/theme';
+import { Colors, Theme } from '@/constants';
 import { useResolvedColorScheme } from '@/hooks/use-resolved-color-scheme';
 
 export function useTheme(): Theme {

@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { postsQueryKey } from '@/lib/query-keys';
-import { createPost } from '@/services/posts';
-import { Post, PostStatus } from '@/types/post';
+import { postsQueryKey } from '@/lib';
+import { createPost } from '@/services';
+import { Post, PostStatus } from '@/types';
 
 type CreatePostInput = {
   communityId: string;

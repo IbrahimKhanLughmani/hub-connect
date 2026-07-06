@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { communitiesQueryKey } from '@/lib/query-keys';
-import { fetchCommunities } from '@/services/communities';
-import { CommunitySort } from '@/types/community';
+import { communitiesQueryKey } from '@/lib';
+import { fetchCommunities } from '@/services';
+import { CommunitySort } from '@/types';
 
 export function useCommunities(params: { search: string; sort: CommunitySort }) {
   return useInfiniteQuery({

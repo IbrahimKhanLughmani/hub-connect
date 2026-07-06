@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Radius, Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 

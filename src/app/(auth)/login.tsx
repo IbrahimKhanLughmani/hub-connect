@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { Button } from '@/components/button';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedTextInput } from '@/components/themed-text-input';
-import { ThemedView } from '@/components/themed-view';
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { useAuthStore } from '@/store/auth-store';
+import { Button, ThemedText, ThemedTextInput, ThemedView } from '@/components';
+import { Radius, Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
+import { useAuthStore } from '@/store';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

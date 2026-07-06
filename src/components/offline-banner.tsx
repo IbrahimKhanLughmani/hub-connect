@@ -2,9 +2,8 @@ import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
-import { useIsOnline } from '@/hooks/use-is-online';
-import { useTheme } from '@/hooks/use-theme';
+import { Spacing } from '@/constants';
+import { useIsOnline, useTheme } from '@/hooks';
 
 export function OfflineBanner() {
   const theme = useTheme();

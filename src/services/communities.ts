@@ -1,7 +1,6 @@
 import { ApiError, ApiErrorKind } from '@/services/api-error';
 import { simulateNetwork } from '@/services/network-simulation';
-import { Community, CommunitySort } from '@/types/community';
-import { PaginatedResult } from '@/types/pagination';
+import { Community, CommunitySort, PaginatedResult } from '@/types';
 
 const PAGE_SIZE = 10;
 

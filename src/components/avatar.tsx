@@ -3,8 +3,8 @@ import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { getInitial } from '@/utils/get-initial';
+import { useTheme } from '@/hooks';
+import { getInitial } from '@/utils';
 
 type AvatarProps = {
   name: string;

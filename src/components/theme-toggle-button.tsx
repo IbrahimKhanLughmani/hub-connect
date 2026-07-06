@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { Spacing } from '@/constants/theme';
-import { useResolvedColorScheme } from '@/hooks/use-resolved-color-scheme';
-import { useTheme } from '@/hooks/use-theme';
-import { ThemePreference, useThemeStore } from '@/store/theme-store';
+import { Spacing } from '@/constants';
+import { useResolvedColorScheme, useTheme } from '@/hooks';
+import { ThemePreference, useThemeStore } from '@/store';
 
 export function ThemeToggleButton() {
   const theme = useTheme();

@@ -1,5 +1,5 @@
 import { ApiError, ApiErrorKind } from '@/services/api-error';
-import { delay } from '@/utils/delay';
+import { delay } from '@/utils';
 
 const FAILURE_RATE = 0.1;
 

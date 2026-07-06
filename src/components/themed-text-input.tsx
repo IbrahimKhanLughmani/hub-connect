@@ -4,8 +4,8 @@ import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'rea
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Radius, Spacing } from '@/constants';
+import { useTheme } from '@/hooks';
 
 type ThemedTextInputProps = TextInputProps & {
   label?: string;

@@ -96,11 +96,13 @@ index.js                  # registers src/app as the root component
 ```
 
 Each feature follows the same internal shape — e.g. `features/communities/` has
-`components/`, `screens/`, `hooks/`, `service.ts` (fetch/join/leave + query-key factories),
-`mutations.ts` (optimistic join/leave wiring), `types.ts`, and a single `index.ts` public barrel.
-Other code — other features, `app/routes/`, tests — only ever imports through that barrel; files
-_inside_ a feature import each other directly rather than through their own feature's barrel, to
-avoid circular re-exports. See
+`components/`, `screens/`, `hooks/`, `dummy-data.ts` (the seeded in-memory records),
+`service.ts` (fetch/join/leave + query-key factories), `mutations.ts` (optimistic join/leave
+wiring), `types.ts`, and a single `index.ts` public barrel. `dummy-data.ts` is intentionally not
+re-exported from that barrel — it's an internal implementation detail of `service.ts`, not part of
+the feature's public surface. Other code — other features, `app/routes/`, tests — only ever imports
+through the barrel; files _inside_ a feature import each other directly rather than through their
+own feature's barrel, to avoid circular re-exports. See
 [Feature-based architecture](#feature-based-architecture-over-a-layer-based-src-layout) below for
 why the codebase is organized this way.
 
@@ -190,22 +192,11 @@ this was a JS/TS-only change with no dev client rebuild required.
 
 ### Feature-based architecture over a layer-based `src/` layout
 
-The codebase was reorganized from grouping by technical layer (one `components/` folder holding
-every screen's components together, one `hooks/` folder for every domain's hooks, etc.) to
-grouping by business domain: `features/auth/`, `features/communities/`, and `features/posts/` each
-own their own screens, components, hooks, service/mutation logic, and types behind a single public
-`index.ts` barrel. Cross-cutting code every feature depends on (themed components, the query
-client, storage, theme tokens) lives in `shared/`; the navigator setup and app root live in `app/`.
-This is explicitly one of the assignment's optional "Bonus Considerations," and was worth doing at
-this app's size specifically because communities and posts are genuinely separate domains with
-their own screens, data, and mutation logic — everything needed to work on one feature now lives in
-one folder, rather than being scattered across `screens/`, `components/community-details/`,
-`hooks/`, `services/`, and `types/`. The one deliberate inversion: `shared/lib/query-client.ts`
-used to call
-`registerMembershipMutationDefaults` internally, which would mean shared infrastructure importing
-from a feature — backwards for this layering. That registration call now happens in `app/index.tsx`
-(the composition root) instead, so `shared/` stays fully feature-agnostic and only `app/` is allowed
-to know about every feature.
+The codebase is organized by business domain rather than by technical layer:
+`features/auth/`, `features/communities/`, and `features/posts/` each own their own screens,
+components, hooks, service/mutation logic, and types behind a single public `index.ts` barrel.
+Cross-cutting code every feature depends on (themed components, the query client, storage, theme
+tokens) lives in `shared/`; the navigator setup and app root live in `app/`.
 
 ### Mocked backend (not a real API or local server)
 

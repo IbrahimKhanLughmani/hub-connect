@@ -49,9 +49,15 @@ Other scripts:
 
 ```bash
 npm run lint           # ESLint
+npm run typecheck      # TypeScript — tsc --noEmit
+npm test               # Jest — unit + integration tests
+npm run test:watch     # Jest — watch mode
 npm run format         # Prettier — format everything
 npm run format:check   # Prettier — check without writing
 ```
+
+`lint`, `typecheck`, `test`, and `format:check` all run in CI on every push and pull request — see
+`.github/workflows/ci.yml`.
 
 ### Environment configuration
 
@@ -79,10 +85,11 @@ src/
     routes/               # RootNavigator, AuthNavigator, AppNavigator, TabsNavigator, param lists
     index.tsx             # app root: providers, NavigationContainer, error boundary, offline banner
   features/               # one folder per business domain
-    auth/                 # login screen, auth store
+    auth/                 # login screen, auth store, login form validation
     communities/          # communities list/details screens, components, hooks, service,
                           # mutations (join/leave optimistic updates), types
-    posts/                # create-post screen, post components, hooks, service, types
+    posts/                # create-post screen, post components, hooks, service,
+                          # create-post form validation, types
   shared/                 # cross-cutting code every feature depends on
     components/           # ThemedText, ThemedView, Button, Avatar, ErrorBoundary, etc.
     hooks/                # useTheme, useIsOnline, useDebouncedValue, etc.
@@ -96,7 +103,7 @@ index.js                  # registers src/app as the root component
 ```
 
 Each feature follows the same internal shape — e.g. `features/communities/` has
-`components/`, `screens/`, `hooks/`, `dummy-data.ts` (the seeded in-memory records),
+`components/`, `screens/`, `hooks/`, `tests/`, `dummy-data.ts` (the seeded in-memory records),
 `service.ts` (fetch/join/leave + query-key factories), `mutations.ts` (optimistic join/leave
 wiring), `types.ts`, and a single `index.ts` public barrel. `dummy-data.ts` is intentionally not
 re-exported from that barrel — it's an internal implementation detail of `service.ts`, not part of
@@ -104,7 +111,10 @@ the feature's public surface. Other code — other features, `app/routes/`, test
 through the barrel; files _inside_ a feature import each other directly rather than through their
 own feature's barrel, to avoid circular re-exports. See
 [Feature-based architecture](#feature-based-architecture-over-a-layer-based-src-layout) below for
-why the codebase is organized this way.
+why the codebase is organized this way. Each feature also has its own `tests/` folder (e.g.
+`features/communities/tests/service.test.ts`) holding every `*.test.ts(x)` file for that feature,
+rather than colocating tests next to the file they cover — see
+[Testing strategy](#testing-strategy) below.
 
 Navigation is built directly on React Navigation, not file-based routing: `RootNavigator`
 conditionally renders an `AuthNavigator` (native stack, login only) or an `AppNavigator` (native
@@ -156,6 +166,27 @@ rolled back (join/leave) or flagged for retry in place (post creation) — never
   simply pause while offline and automatically refetch/resume once `onlineManager` reports back
   online — no custom reconnect logic needed.
 
+### Testing strategy
+
+Jest (via `jest-expo`) plus `@testing-library/react-native`, split into two layers:
+
+- **Unit tests** for pure logic: the service layer (`features/communities/service.ts`,
+  `features/posts/service.ts` — pagination, search, sort, join/leave, not-found handling) and form
+  validation (`features/auth/validate-login.ts`, `features/posts/validate-create-post.ts`). These
+  mock `simulateNetwork` so they run deterministically and instantly, without real delays or the
+  mock backend's 10% random failure rate landing mid-test.
+- **Integration tests** (`features/communities/tests/mutations.test.tsx`) render the actual
+  `useJoinCommunity`/`useLeaveCommunity` hooks against a real `QueryClient` with
+  `registerMembershipMutationDefaults` applied, and mock only the underlying `joinCommunity`/
+  `leaveCommunity` service calls. This exercises the exact optimistic-update, rollback-on-error, and
+  offline-pause/resume behavior described above — the parts of the offline strategy that are
+  genuinely hard to verify by hand, since they depend on timing and network state rather than just
+  a component's rendered output.
+
+Run via `npm test` (`--forceExit`, since React Query's internal `notifyManager` batches updates via
+a `setTimeout` that Jest's exit-detection is conservative about — the tests themselves complete in
+under two seconds; this only affects how promptly the process exits afterward).
+
 ## Key Decisions & Tradeoffs
 
 ### Expo (with a dev client) over bare React Native CLI
@@ -194,7 +225,8 @@ this was a JS/TS-only change with no dev client rebuild required.
 
 The codebase is organized by business domain rather than by technical layer:
 `features/auth/`, `features/communities/`, and `features/posts/` each own their own screens,
-components, hooks, service/mutation logic, and types behind a single public `index.ts` barrel.
+components, hooks, service/mutation logic, validation, tests, and types behind a single public
+`index.ts` barrel.
 Cross-cutting code every feature depends on (themed components, the query client, storage, theme
 tokens) lives in `shared/`; the navigator setup and app root live in `app/`.
 
@@ -261,18 +293,21 @@ self-documenting at call sites.
 
 With additional time, these are the areas I'd prioritize next:
 
-- **Testing.** No automated tests exist yet. I'd start with unit tests for the pure logic
-  (`features/*/service.ts`, `features/communities/mutations.ts`, form validation) and integration
-  tests for the offline-queue and optimistic-update flows, since those are the highest-risk,
-  hardest-to-manually-verify paths.
+- **Broader test coverage.** Unit and integration tests exist for the service layer, form
+  validation, and the join/leave optimistic-update/rollback/offline-queue flow (see
+  [Testing strategy](#testing-strategy)) — the highest-risk, hardest-to-manually-verify paths. Not
+  yet covered: screen/component-level tests (rendering `CommunitiesScreen`, `CommunityDetailsScreen`,
+  etc. and asserting on loading/empty/error states) and the create-post optimistic-update flow
+  (`use-create-post.ts`), which would follow the same pattern as `mutations.test.tsx`.
 - **Post creation offline-restart queueing.** Extend the same `setMutationDefaults` +
   `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
   submitted while offline also survives an app kill/restart before reconnecting, not just a live
   session.
 - **Accessibility pass.** Explicit `accessibilityLabel`/`accessibilityRole` props, focus order, and
   screen-reader verification haven't been done — the app is usable but not verified accessible.
-- **CI/CD.** Wire up a GitHub Actions workflow to run `tsc`, `lint`, and tests on every PR, and
-  eventually EAS Build for release artifacts.
+- **EAS Build for release artifacts.** GitHub Actions (`.github/workflows/ci.yml`) now runs
+  `typecheck`, `lint`, `test`, and `format:check` on every push/PR. Wiring EAS Build for automated
+  release builds is the remaining piece.
 - **Real API integration.** Swap the in-process mock services for a real backend or a proper local
   mock server, now that the `queryFn`/`mutationFn` boundary already isolates that concern.
 - **Analytics/event tracking.** No usage analytics are wired in; would add a lightweight event layer

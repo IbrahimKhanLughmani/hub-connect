@@ -2,29 +2,10 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useAuthStore } from '@/features/auth/store';
+import { validateLogin, type LoginFormErrors } from '@/features/auth/validate-login';
 import { Button, ThemedText, ThemedTextInput, ThemedView } from '@/shared/components';
 import { useTheme } from '@/shared/hooks';
 import { Radius, Spacing } from '@/shared/styles';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type FormErrors = {
-  email?: string;
-  password?: string;
-};
-
-function validate(email: string, password: string): FormErrors {
-  const errors: FormErrors = {};
-
-  if (!EMAIL_PATTERN.test(email)) {
-    errors.email = 'Enter a valid email address';
-  }
-  if (password.length < 6) {
-    errors.password = 'Password must be at least 6 characters';
-  }
-
-  return errors;
-}
 
 export function LoginScreen() {
   const theme = useTheme();
@@ -32,10 +13,10 @@ export function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<LoginFormErrors>({});
 
   function handleSubmit() {
-    const nextErrors = validate(email, password);
+    const nextErrors = validateLogin(email, password);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length === 0) {

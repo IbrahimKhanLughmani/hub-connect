@@ -8,27 +8,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { AppStackParamList } from '@/app/routes';
 import { useAuthStore } from '@/features/auth';
 import { useCreatePost, useDraftPost } from '@/features/posts/hooks';
+import {
+  validateCreatePost,
+  type CreatePostFormErrors,
+} from '@/features/posts/validate-create-post';
 import { Button, ThemedText, ThemedTextInput, ThemedView } from '@/shared/components';
 import { useTheme } from '@/shared/hooks';
 import { Spacing } from '@/shared/styles';
-
-type FormErrors = {
-  title?: string;
-  body?: string;
-};
-
-function validate(title: string, body: string): FormErrors {
-  const errors: FormErrors = {};
-
-  if (title.trim().length === 0) {
-    errors.title = 'Title is required';
-  }
-  if (body.trim().length === 0) {
-    errors.body = 'Body is required';
-  }
-
-  return errors;
-}
 
 export function CreatePostScreen() {
   const theme = useTheme();
@@ -38,7 +24,7 @@ export function CreatePostScreen() {
   const { id } = route.params;
   const email = useAuthStore((state) => state.email);
   const { title, setTitle, body, setBody, clearDraft } = useDraftPost(id);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<CreatePostFormErrors>({});
   const createPostMutation = useCreatePost();
 
   function handleSubmit() {
@@ -46,7 +32,7 @@ export function CreatePostScreen() {
       return;
     }
 
-    const nextErrors = validate(title, body);
+    const nextErrors = validateCreatePost(title, body);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {

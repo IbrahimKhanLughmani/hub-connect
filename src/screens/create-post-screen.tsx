@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, ThemedText, ThemedTextInput, ThemedView } from '@/components';
 import { Spacing } from '@/constants';
 import { useCreatePost, useDraftPost, useTheme } from '@/hooks';
+import type { AppStackParamList } from '@/navigation';
 import { useAuthStore } from '@/store';
 
 type FormErrors = {
@@ -27,10 +29,12 @@ function validate(title: string, body: string): FormErrors {
   return errors;
 }
 
-export default function CreatePostScreen() {
+export function CreatePostScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const route = useRoute<RouteProp<AppStackParamList, 'CreatePost'>>();
+  const { id } = route.params;
   const email = useAuthStore((state) => state.email);
   const { title, setTitle, body, setBody, clearDraft } = useDraftPost(id);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -56,7 +60,7 @@ export default function CreatePostScreen() {
     });
 
     clearDraft();
-    router.back();
+    navigation.goBack();
   }
 
   return (
@@ -70,7 +74,7 @@ export default function CreatePostScreen() {
           { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg },
         ]}
       >
-        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.closeButton}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.closeButton}>
           <Ionicons name="close" size={24} color={theme.text} />
         </Pressable>
 

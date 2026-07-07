@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText, ThemedView } from '@/components';
 import { Radius, Spacing } from '@/constants';
 import { useTheme } from '@/hooks';
+import type { AppStackParamList } from '@/navigation';
 
 type NewPostLinkProps = {
   communityId: string;
@@ -13,6 +15,7 @@ type NewPostLinkProps = {
 
 export function NewPostLink({ communityId, isJoined }: NewPostLinkProps) {
   const theme = useTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   if (!isJoined) {
     return (
@@ -28,14 +31,13 @@ export function NewPostLink({ communityId, isJoined }: NewPostLinkProps) {
   }
 
   return (
-    <Link href={{ pathname: '/community/[id]/create-post', params: { id: communityId } }} asChild>
-      <Pressable
-        style={StyleSheet.flatten([styles.button, { backgroundColor: theme.surfaceSelected }])}
-      >
-        <Ionicons name="add" size={16} color={theme.accent} />
-        <ThemedText type="linkPrimary">New Post</ThemedText>
-      </Pressable>
-    </Link>
+    <Pressable
+      onPress={() => navigation.navigate('CreatePost', { id: communityId })}
+      style={StyleSheet.flatten([styles.button, { backgroundColor: theme.surfaceSelected }])}
+    >
+      <Ionicons name="add" size={16} color={theme.accent} />
+      <ThemedText type="linkPrimary">New Post</ThemedText>
+    </Pressable>
   );
 }
 

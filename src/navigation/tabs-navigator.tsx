@@ -1,11 +1,15 @@
-import { Tabs } from 'expo-router';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LottieView from 'lottie-react-native';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText, ThemeToggleButton } from '@/components';
 import { Spacing } from '@/constants';
 import { useTheme } from '@/hooks';
+import type { MainTabParamList } from '@/navigation/types';
+import { CommunitiesScreen } from '@/screens';
 import { useAuthStore } from '@/store';
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function LogoutButton() {
   const logout = useAuthStore((state) => state.logout);
@@ -30,11 +34,11 @@ function HomeTabIcon() {
   );
 }
 
-export default function TabsLayout() {
+export function TabsNavigator() {
   const theme = useTheme();
 
   return (
-    <Tabs
+    <Tab.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: theme.surface },
         headerTitleStyle: { color: theme.text },
@@ -44,8 +48,9 @@ export default function TabsLayout() {
         tabBarStyle: { backgroundColor: theme.surface, borderTopColor: theme.border },
       }}
     >
-      <Tabs.Screen
-        name="index"
+      <Tab.Screen
+        name="Communities"
+        component={CommunitiesScreen}
         options={{
           title: 'Communities',
           tabBarIcon: () => <HomeTabIcon />,
@@ -53,7 +58,7 @@ export default function TabsLayout() {
           headerRight: () => <LogoutButton />,
         }}
       />
-    </Tabs>
+    </Tab.Navigator>
   );
 }
 

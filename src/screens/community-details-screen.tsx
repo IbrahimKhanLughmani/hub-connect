@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { router, useLocalSearchParams } from 'expo-router';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,12 +17,15 @@ import {
   usePosts,
   useTheme,
 } from '@/hooks';
-import type { Post } from '@/types/post';
+import type { AppStackParamList } from '@/navigation';
+import type { Post } from '@/types';
 
 function CommunityDetailsContent() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const route = useRoute<RouteProp<AppStackParamList, 'CommunityDetails'>>();
+  const { id } = route.params;
 
   const communityQuery = useCommunity(id);
   const postsQuery = usePosts(id);
@@ -73,7 +77,7 @@ function CommunityDetailsContent() {
     return (
       <ThemedView style={[styles.centered, { paddingTop: insets.top }]}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigation.goBack()}
           hitSlop={8}
           style={[styles.errorBackButton, { top: insets.top + Spacing.md }]}
         >
@@ -123,7 +127,7 @@ function CommunityDetailsContent() {
   );
 }
 
-export default function CommunityDetailsScreen() {
+export function CommunityDetailsScreen() {
   return (
     <ErrorBoundary>
       <CommunityDetailsContent />

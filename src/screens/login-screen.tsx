@@ -26,7 +26,7 @@ function validate(email: string, password: string): FormErrors {
   return errors;
 }
 
-export default function LoginScreen() {
+export function LoginScreen() {
   const theme = useTheme();
   const login = useAuthStore((state) => state.login);
 

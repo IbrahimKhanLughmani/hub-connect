@@ -26,11 +26,20 @@ load. You need to build a dev client once, then use it for day-to-day developmen
 ```bash
 # One-time: generate native projects and build + install the dev client
 npx expo prebuild
-npx expo run:ios       # or: npx expo run:android
+EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK=1 npx expo run:ios       # or: run:android
 
 # Day-to-day: start Metro and connect to the already-installed dev client
-npx expo start --dev-client
+EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK=1 npx expo start --dev-client
 ```
+
+The `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` env var (already baked into the `npm run
+start`/`ios`/`android` scripts, needed only for the raw `npx expo` commands above) works
+around a Metro SDK 56+ guard that throws if `expo-router` and `@react-navigation/core` are both
+resolvable in `node_modules` — which is always true here, since `expo-router` ships as an internal
+transitive dependency of `expo`'s own CLI regardless of whether the app uses it. The app itself has
+no `expo-router` imports (see
+[React Navigation over expo-router](#react-navigation-native-stack--bottom-tabs-directly-not-expo-router)),
+so this is a false positive the check can't distinguish from a real conflict.
 
 Other scripts:
 
@@ -58,23 +67,27 @@ login only validates format, not identity.
 
 ```
 src/
-  app/                    # expo-router file-based routes
-    (auth)/               # unauthenticated flow — login
-    (app)/                # authenticated flow — tabs + community details/create-post
-    _layout.tsx           # root layout: providers, error boundary, offline banner
-  components/             # reusable UI components (ThemedText, ThemedView, list items, etc.)
+  screens/                # screen components (Login, Communities, CommunityDetails, CreatePost)
+  navigation/             # React Navigation setup — RootNavigator, AuthNavigator, AppNavigator,
+                          # TabsNavigator, and typed param lists for each navigator
+  components/             # reusable UI components — global (root) + per-screen subfolders
   hooks/                  # data-fetching hooks (React Query) + small UI hooks
   services/               # mocked API layer (communities, posts, error normalization)
   store/                  # Zustand stores (auth/session)
   lib/                    # cross-cutting infra (query client, persister, mutation defaults, storage)
   types/                  # shared domain types (Community, Post, pagination)
   constants/              # theme tokens (colors, fonts)
-  utils/                  # generic utilities (delay)
+  utils/                  # generic utilities (delay, formatting)
+App.tsx                   # app root: providers, NavigationContainer, error boundary, offline banner
+index.js                  # registers App as the root component
 ```
 
-Routes are file-based (folders/files under `src/app`), so the navigation tree is visible directly
-in the file structure — `(auth)` and `(app)` are separate route groups, each gated by a layout
-that checks session state and redirects accordingly.
+Navigation is built directly on React Navigation, not file-based routing: `RootNavigator`
+conditionally renders an `AuthNavigator` (native stack, login only) or an `AppNavigator` (native
+stack containing the tabs navigator plus the community-details/create-post screens) based on
+session state read from the Zustand auth store — see
+[React Navigation over expo-router](#react-navigation-native-stack--bottom-tabs-directly-not-expo-router)
+below for why.
 
 ### State management approach
 
@@ -137,13 +150,21 @@ pagination-merge and offline-queue logic ourselves. Zustand covers the small ses
 without Redux's boilerplate. Context was ruled out for server state specifically because it has no
 built-in caching/retry/pagination story — it would mean rebuilding what React Query already does.
 
-### expo-router over classic React Navigation
+### React Navigation (native stack + bottom tabs) directly, not expo-router
 
-expo-router is built on React Navigation, so it satisfies "use React Navigation" while adding
-typed routes, file-based structure, and automatic code splitting for free. Classic React
-Navigation's conditional-stack pattern for auth flows is equally capable — the deciding factor was
-that expo-router was already scaffolded by the project template, so switching would have meant
-writing boilerplate (linking config, manual screen registration) for no functional gain.
+The project template scaffolded expo-router, which is itself built on React Navigation, so it
+satisfied the "use React Navigation" requirement early on. It was later switched to
+`@react-navigation/native` + `@react-navigation/native-stack` + `@react-navigation/bottom-tabs`
+directly, with explicit navigators (`AuthNavigator`, `AppNavigator`, `TabsNavigator`) and a
+`RootNavigator` that conditionally renders `AuthNavigator` or `AppNavigator` based on session
+state, instead of file-based routes with layout-level redirects. All screens moved to
+`src/screens/`. This keeps the same navigation behavior that "preserve list state when navigating
+back from details" depends on — the tabs screen stays mounted underneath a pushed details
+screen — while making the navigator/screen wiring explicit and typed (`AuthStackParamList`,
+`AppStackParamList`, `MainTabParamList`) rather than inferred from a file tree. No native
+dependencies changed: `react-native-screens`, `react-native-safe-area-context`, and
+`react-native-gesture-handler` were already installed (expo-router depends on them too), so this
+was a JS/TS-only change with no dev client rebuild required.
 
 ### Mocked backend (not a real API or local server)
 

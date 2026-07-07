@@ -4,11 +4,11 @@ import { StyleSheet } from 'react-native';
 
 import { ErrorState, LoadingIndicator, ThemedText, ThemedView } from '@/components';
 import { CommunitiesToolbar, CommunityListItem } from '@/components/communities';
-import { Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants';
 import { useCommunities, useDebouncedValue, useTheme } from '@/hooks';
 import { CommunitySort, type Community } from '@/types';
 
-export default function CommunitiesScreen() {
+export function CommunitiesScreen() {
   const theme = useTheme();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<CommunitySort>(CommunitySort.NameAsc);

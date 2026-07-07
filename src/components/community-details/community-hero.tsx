@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText, ThemedView } from '@/components';
@@ -14,12 +14,13 @@ type CommunityHeroProps = {
 
 export function CommunityHero({ community, topInset }: CommunityHeroProps) {
   const theme = useTheme();
+  const navigation = useNavigation();
 
   return (
     <ThemedView
       style={[styles.hero, { backgroundColor: theme.accent, paddingTop: topInset + Spacing.md }]}
     >
-      <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+      <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
         <Ionicons name="chevron-back" size={24} color={theme.onAccent} />
       </Pressable>
       <ThemedText type="eyebrow" themeColor="onAccent">

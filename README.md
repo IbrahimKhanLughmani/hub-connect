@@ -16,6 +16,7 @@ backed by a mocked API layer, with offline resilience baked in throughout.
 
 ```bash
 npm install
+cp .env.example .env
 ```
 
 ### Running the application
@@ -26,20 +27,23 @@ load. You need to build a dev client once, then use it for day-to-day developmen
 ```bash
 # One-time: generate native projects and build + install the dev client
 npx expo prebuild
-EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK=1 npx expo run:ios       # or: run:android
+npx expo run:ios       # or: npx expo run:android
 
 # Day-to-day: start Metro and connect to the already-installed dev client
-EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK=1 npx expo start --dev-client
+npx expo start --dev-client
 ```
 
-The `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` env var (already baked into the `npm run
-start`/`ios`/`android` scripts, needed only for the raw `npx expo` commands above) works
+These commands rely on the `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` env var from the `.env` file
+created during [Installation](#installation) (Expo's CLI loads `.env` automatically, regardless of
+how the dev server is launched — terminal, `npm run` script, or an IDE's "Run" button). It works
 around a Metro SDK 56+ guard that throws if `expo-router` and `@react-navigation/core` are both
 resolvable in `node_modules` — which is always true here, since `expo-router` ships as an internal
 transitive dependency of `expo`'s own CLI regardless of whether the app uses it. The app itself has
 no `expo-router` imports (see
 [React Navigation over expo-router](#react-navigation-native-stack--bottom-tabs-directly-not-expo-router)),
-so this is a false positive the check can't distinguish from a real conflict.
+so this is a false positive the check can't distinguish from a real conflict. The `npm run
+start`/`ios`/`android` scripts also set this var inline as a redundant fallback in case `.env` is
+ever missing.
 
 Other scripts:
 
@@ -51,9 +55,13 @@ npm run format:check   # Prettier — check without writing
 
 ### Environment configuration
 
-**None required.** There are no API keys, base URLs, or `.env` files — the app's entire backend
-is mocked in-process (see [Mocked backend](#mocked-backend-not-a-real-api-or-local-server) below),
-so there's nothing external to configure. This is a deliberate simplification, not an oversight.
+**No secrets or API keys.** The app's entire backend is mocked in-process (see
+[Mocked backend](#mocked-backend-not-a-real-api-or-local-server) below), so there's nothing
+external to configure. The one `.env` file that exists (created via `cp .env.example .env` above)
+holds a single non-secret build-tooling flag, `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` — see
+[Running the application](#running-the-application) for what it does. `.env` is gitignored per
+convention even though its value isn't sensitive here; `.env.example` documents the real value
+since there's nothing project-specific to fill in.
 
 ### Logging in
 
@@ -67,20 +75,34 @@ login only validates format, not identity.
 
 ```
 src/
-  screens/                # screen components (Login, Communities, CommunityDetails, CreatePost)
-  navigation/             # React Navigation setup — RootNavigator, AuthNavigator, AppNavigator,
-                          # TabsNavigator, and typed param lists for each navigator
-  components/             # reusable UI components — global (root) + per-screen subfolders
-  hooks/                  # data-fetching hooks (React Query) + small UI hooks
-  services/               # mocked API layer (communities, posts, error normalization)
-  store/                  # Zustand stores (auth/session)
-  lib/                    # cross-cutting infra (query client, persister, mutation defaults, storage)
-  types/                  # shared domain types (Community, Post, pagination)
-  constants/              # theme tokens (colors, fonts)
-  utils/                  # generic utilities (delay, formatting)
-App.tsx                   # app root: providers, NavigationContainer, error boundary, offline banner
-index.js                  # registers App as the root component
+  app/                    # composition root
+    routes/               # RootNavigator, AuthNavigator, AppNavigator, TabsNavigator, param lists
+    index.tsx             # app root: providers, NavigationContainer, error boundary, offline banner
+  features/               # one folder per business domain
+    auth/                 # login screen, auth store
+    communities/          # communities list/details screens, components, hooks, service,
+                          # mutations (join/leave optimistic updates), types
+    posts/                # create-post screen, post components, hooks, service, types
+  shared/                 # cross-cutting code every feature depends on
+    components/           # ThemedText, ThemedView, Button, Avatar, ErrorBoundary, etc.
+    hooks/                # useTheme, useIsOnline, useDebouncedValue, etc.
+    lib/                  # query client, query persister, MMKV storage
+    services/             # generic API-simulation infra (ApiError, simulateNetwork)
+    store/                # theme-store (dark mode preference)
+    styles/               # theme tokens (colors, spacing, radius, fonts)
+    types/                # generic shared types (PaginatedResult)
+    utils/                # generic utilities (delay, relative-time formatting)
+index.js                  # registers src/app as the root component
 ```
+
+Each feature follows the same internal shape — e.g. `features/communities/` has
+`components/`, `screens/`, `hooks/`, `service.ts` (fetch/join/leave + query-key factories),
+`mutations.ts` (optimistic join/leave wiring), `types.ts`, and a single `index.ts` public barrel.
+Other code — other features, `app/routes/`, tests — only ever imports through that barrel; files
+_inside_ a feature import each other directly rather than through their own feature's barrel, to
+avoid circular re-exports. See
+[Feature-based architecture](#feature-based-architecture-over-a-layer-based-src-layout) below for
+why the codebase is organized this way.
 
 Navigation is built directly on React Navigation, not file-based routing: `RootNavigator`
 conditionally renders an `AuthNavigator` (native stack, login only) or an `AppNavigator` (native
@@ -107,7 +129,7 @@ alternatives (Redux Toolkit, Context, etc.).
 
 ```
 Screen → React Query hook (useCommunities, useCommunity, usePosts, ...)
-       → mocked service function (services/communities.ts, services/posts.ts)
+       → feature service function (features/communities/service.ts, features/posts/service.ts)
        → in-memory "database" (seeded arrays), with simulated latency + a 10% random failure
 ```
 
@@ -157,14 +179,33 @@ satisfied the "use React Navigation" requirement early on. It was later switched
 `@react-navigation/native` + `@react-navigation/native-stack` + `@react-navigation/bottom-tabs`
 directly, with explicit navigators (`AuthNavigator`, `AppNavigator`, `TabsNavigator`) and a
 `RootNavigator` that conditionally renders `AuthNavigator` or `AppNavigator` based on session
-state, instead of file-based routes with layout-level redirects. All screens moved to
-`src/screens/`. This keeps the same navigation behavior that "preserve list state when navigating
-back from details" depends on — the tabs screen stays mounted underneath a pushed details
-screen — while making the navigator/screen wiring explicit and typed (`AuthStackParamList`,
-`AppStackParamList`, `MainTabParamList`) rather than inferred from a file tree. No native
-dependencies changed: `react-native-screens`, `react-native-safe-area-context`, and
-`react-native-gesture-handler` were already installed (expo-router depends on them too), so this
-was a JS/TS-only change with no dev client rebuild required.
+state, instead of file-based routes with layout-level redirects. This keeps the same navigation
+behavior that "preserve list state when navigating back from details" depends on — the tabs
+screen stays mounted underneath a pushed details screen — while making the navigator/screen wiring
+explicit and typed
+(`AuthStackParamList`, `AppStackParamList`, `MainTabParamList`) rather than inferred from a file
+tree. No native dependencies changed: `react-native-screens`, `react-native-safe-area-context`,
+and `react-native-gesture-handler` were already installed (expo-router depends on them too), so
+this was a JS/TS-only change with no dev client rebuild required.
+
+### Feature-based architecture over a layer-based `src/` layout
+
+The codebase was reorganized from grouping by technical layer (one `components/` folder holding
+every screen's components together, one `hooks/` folder for every domain's hooks, etc.) to
+grouping by business domain: `features/auth/`, `features/communities/`, and `features/posts/` each
+own their own screens, components, hooks, service/mutation logic, and types behind a single public
+`index.ts` barrel. Cross-cutting code every feature depends on (themed components, the query
+client, storage, theme tokens) lives in `shared/`; the navigator setup and app root live in `app/`.
+This is explicitly one of the assignment's optional "Bonus Considerations," and was worth doing at
+this app's size specifically because communities and posts are genuinely separate domains with
+their own screens, data, and mutation logic — everything needed to work on one feature now lives in
+one folder, rather than being scattered across `screens/`, `components/community-details/`,
+`hooks/`, `services/`, and `types/`. The one deliberate inversion: `shared/lib/query-client.ts`
+used to call
+`registerMembershipMutationDefaults` internally, which would mean shared infrastructure importing
+from a feature — backwards for this layering. That registration call now happens in `app/index.tsx`
+(the composition root) instead, so `shared/` stays fully feature-agnostic and only `app/` is allowed
+to know about every feature.
 
 ### Mocked backend (not a real API or local server)
 
@@ -175,9 +216,10 @@ always read-only. A local mock server (e.g. `json-server`) was considered and re
 second process to run, and its network address differs across iOS Simulator (`localhost`), Android
 Emulator (`10.0.2.2`), and a physical device (LAN IP) — real setup friction for a reviewer, with no
 benefit, since React Query's `queryFn`/`mutationFn` behaves identically whether it calls `fetch()`
-over a socket or an in-process async function. The mocked service functions (`services/*.ts`)
-simulate real latency and a 10% random failure rate, so loading/error/retry paths are genuinely
-exercised rather than only reachable in theory.
+over a socket or an in-process async function. The mocked service functions
+(`features/communities/service.ts`, `features/posts/service.ts`) simulate real latency and a 10%
+random failure rate, so loading/error/retry paths are genuinely exercised rather than only
+reachable in theory.
 
 ### MMKV over AsyncStorage
 
@@ -229,9 +271,9 @@ self-documenting at call sites.
 With additional time, these are the areas I'd prioritize next:
 
 - **Testing.** No automated tests exist yet. I'd start with unit tests for the pure logic
-  (`services/*.ts`, `lib/mutation-defaults.ts`, form validation) and integration tests for the
-  offline-queue and optimistic-update flows, since those are the highest-risk, hardest-to-manually-
-  verify paths.
+  (`features/*/service.ts`, `features/communities/mutations.ts`, form validation) and integration
+  tests for the offline-queue and optimistic-update flows, since those are the highest-risk,
+  hardest-to-manually-verify paths.
 - **Post creation offline-restart queueing.** Extend the same `setMutationDefaults` +
   `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
   submitted while offline also survives an app kill/restart before reconnecting, not just a live
@@ -247,6 +289,3 @@ With additional time, these are the areas I'd prioritize next:
   mock server, now that the `queryFn`/`mutationFn` boundary already isolates that concern.
 - **Analytics/event tracking.** No usage analytics are wired in; would add a lightweight event layer
   around key actions (join/leave, post creation, search/sort usage) to inform product decisions.
-- **Feature-based architecture.** The current split (`components/<screen>/`, `hooks/`, `services/`)
-  scales reasonably at this size, but a larger app would benefit from grouping by feature
-  (`features/communities/`, `features/posts/`) instead of by technical layer.

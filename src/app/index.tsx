@@ -6,6 +6,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { RootNavigator } from '@/app/routes';
 import { registerMembershipMutationDefaults } from '@/features/communities';
+import {
+  registerCreatePostMutationDefaults,
+  registerDeletePostMutationDefaults,
+  registerUpdatePostMutationDefaults,
+} from '@/features/posts';
 import { ErrorBoundary, OfflineBanner } from '@/shared/components';
 import { useResolvedColorScheme } from '@/shared/hooks';
 import { queryClient, queryPersister } from '@/shared/lib';
@@ -13,6 +18,9 @@ import { queryClient, queryPersister } from '@/shared/lib';
 const PERSIST_MAX_AGE = 1000 * 60 * 60 * 24;
 
 registerMembershipMutationDefaults(queryClient);
+registerCreatePostMutationDefaults(queryClient);
+registerUpdatePostMutationDefaults(queryClient);
+registerDeletePostMutationDefaults(queryClient);
 
 export default function App() {
   const colorScheme = useResolvedColorScheme();

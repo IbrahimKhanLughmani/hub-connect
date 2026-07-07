@@ -145,9 +145,17 @@ Screen → React Query hook (useCommunities, useCommunity, usePosts, ...)
        → in-memory "database" (seeded arrays), with simulated latency + a 10% random failure
 ```
 
-Mutations (join/leave, create post) follow an optimistic pattern: the UI updates immediately via
-`queryClient.setQueryData`, the mock call happens in the background, and on failure the change is
-rolled back (join/leave) or flagged for retry in place (post creation) — never silently lost.
+Mutations (join/leave, create/edit/delete post) follow an optimistic pattern: the UI updates
+immediately via `queryClient.setQueryData`, the mock call happens in the background, and on
+failure the change is rolled back (join/leave, edit, delete) or flagged for retry in place (post
+creation) — never silently lost.
+
+Editing and deleting are restricted to the post's own author: `authorName` is set to the logged-in
+user's email at creation time, so `features/posts/service.ts`'s `updatePost`/`deletePost` reject
+any request where the caller's `authorName` doesn't match the post's, throwing a `Forbidden`
+`ApiError` (mirroring how a real backend would authorize by session identity rather than trust a
+client-supplied field). The UI enforces the same rule earlier, only rendering the edit/delete
+controls on `CommunityPostItem` when the post belongs to the signed-in user.
 
 ### Offline strategy
 
@@ -157,11 +165,12 @@ rolled back (join/leave) or flagged for retry in place (post creation) — never
 - **Caching:** `PersistQueryClientProvider` persists the entire React Query cache (communities
   list, community details, posts) to MMKV, so the last successful data survives app restarts and
   is available immediately even when offline.
-- **Queueing:** join/leave mutations are registered globally via `queryClient.setMutationDefaults`
-  rather than defined inline. This is what allows them to **resume after a full app restart**, not
-  just pause mid-session — `resumePausedMutations()` is called once the persisted cache rehydrates,
-  so an action taken while offline (even if the app was killed before reconnecting) fires for real
-  once connectivity returns.
+- **Queueing:** join/leave and create-post mutations are registered globally via
+  `queryClient.setMutationDefaults` (`features/communities/mutations.ts`,
+  `features/posts/mutations.ts`) rather than defined inline. This is what allows them to **resume
+  after a full app restart**, not just pause mid-session — `resumePausedMutations()` is called once
+  the persisted cache rehydrates, so an action taken while offline (even if the app was killed
+  before reconnecting) fires for real once connectivity returns.
 - **Recovery:** because queries/mutations use React Query's default `networkMode: 'online'`, they
   simply pause while offline and automatically refetch/resume once `onlineManager` reports back
   online — no custom reconnect logic needed.
@@ -175,13 +184,14 @@ Jest (via `jest-expo`) plus `@testing-library/react-native`, split into two laye
   validation (`features/auth/validate-login.ts`, `features/posts/validate-create-post.ts`). These
   mock `simulateNetwork` so they run deterministically and instantly, without real delays or the
   mock backend's 10% random failure rate landing mid-test.
-- **Integration tests** (`features/communities/tests/mutations.test.tsx`) render the actual
-  `useJoinCommunity`/`useLeaveCommunity` hooks against a real `QueryClient` with
-  `registerMembershipMutationDefaults` applied, and mock only the underlying `joinCommunity`/
-  `leaveCommunity` service calls. This exercises the exact optimistic-update, rollback-on-error, and
-  offline-pause/resume behavior described above — the parts of the offline strategy that are
-  genuinely hard to verify by hand, since they depend on timing and network state rather than just
-  a component's rendered output.
+- **Integration tests** (`features/communities/tests/mutations.test.tsx`,
+  `features/posts/tests/mutations.test.tsx`) render the actual `useJoinCommunity`/
+  `useLeaveCommunity`/`useCreatePost` hooks against a real `QueryClient` with their respective
+  `registerMembershipMutationDefaults`/`registerCreatePostMutationDefaults` applied, and mock only
+  the underlying `joinCommunity`/`leaveCommunity`/`createPost` service calls. This exercises the
+  exact optimistic-update, rollback-on-error, and offline-pause/resume behavior described above —
+  the parts of the offline strategy that are genuinely hard to verify by hand, since they depend on
+  timing and network state rather than just a component's rendered output.
 
 Run via `npm test` (`--forceExit`, since React Query's internal `notifyManager` batches updates via
 a `setTimeout` that Jest's exit-detection is conservative about — the tests themselves complete in
@@ -285,24 +295,19 @@ self-documenting at call sites.
 - Mock community data (Downtown Dubai, Dubai Hills Estate, Arabian Ranches, etc.) reflects Emaar's
   well-known Dubai master communities from general knowledge, **not** a verified/live source —
   fine for demo purposes, but should be cross-checked before any presentation-facing use.
-- Only join/leave mutations are registered for offline-queue resumption after an app restart;
-  post creation pauses/resumes correctly within a live session but wasn't extended to the same
-  restart-survival pattern, since the assignment specifically calls out join/leave for queueing.
+- Join/leave and post creation are both registered via `setMutationDefaults`, so an offline,
+  paused mutation of either kind survives an app kill/restart (not just a live session) and
+  resumes automatically via `resumePausedMutations()` once reconnected.
 
 ## Future Improvements
 
 With additional time, these are the areas I'd prioritize next:
 
 - **Broader test coverage.** Unit and integration tests exist for the service layer, form
-  validation, and the join/leave optimistic-update/rollback/offline-queue flow (see
-  [Testing strategy](#testing-strategy)) — the highest-risk, hardest-to-manually-verify paths. Not
-  yet covered: screen/component-level tests (rendering `CommunitiesScreen`, `CommunityDetailsScreen`,
-  etc. and asserting on loading/empty/error states) and the create-post optimistic-update flow
-  (`use-create-post.ts`), which would follow the same pattern as `mutations.test.tsx`.
-- **Post creation offline-restart queueing.** Extend the same `setMutationDefaults` +
-  `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
-  submitted while offline also survives an app kill/restart before reconnecting, not just a live
-  session.
+  validation, and the join/leave and create-post optimistic-update/rollback/offline-queue flows
+  (see [Testing strategy](#testing-strategy)) — the highest-risk, hardest-to-manually-verify paths.
+  Not yet covered: screen/component-level tests (rendering `CommunitiesScreen`,
+  `CommunityDetailsScreen`, etc. and asserting on loading/empty/error states).
 - **Real API integration.** Swap the in-process mock services for a real backend or a proper local
   mock server, now that the `queryFn`/`mutationFn` boundary already isolates that concern.
 - **Analytics/event tracking.** No usage analytics are wired in; would add a lightweight event layer

@@ -20,7 +20,13 @@ export function CommunityHero({ community, topInset }: CommunityHeroProps) {
     <ThemedView
       style={[styles.hero, { backgroundColor: theme.accent, paddingTop: topInset + Spacing.md }]}
     >
-      <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
+      <Pressable
+        onPress={() => navigation.goBack()}
+        hitSlop={8}
+        style={styles.backButton}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+      >
         <Ionicons name="chevron-back" size={24} color={theme.onAccent} />
       </Pressable>
       <ThemedText type="eyebrow" themeColor="onAccent">

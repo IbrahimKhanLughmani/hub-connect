@@ -21,11 +21,17 @@ export function SortMenu({ options, selectedValue, topOffset, onSelect, onClose 
 
   return (
     <>
-      <Pressable style={styles.overlay} onPress={onClose} />
+      <Pressable
+        style={styles.overlay}
+        onPress={onClose}
+        accessibilityRole="button"
+        accessibilityLabel="Close sort menu"
+      />
       <ThemedView
         type="surface"
         elevated
         style={[styles.menu, { borderColor: theme.border, top: topOffset }]}
+        accessibilityRole="menu"
       >
         {options.map((option) => {
           const active = option.value === selectedValue;
@@ -34,6 +40,9 @@ export function SortMenu({ options, selectedValue, topOffset, onSelect, onClose 
               key={option.value}
               onPress={() => onSelect(option.value)}
               style={styles.menuItem}
+              accessibilityRole="menuitem"
+              accessibilityLabel={option.label}
+              accessibilityState={{ selected: active }}
             >
               <ThemedText type="small" style={{ color: active ? theme.accent : theme.text }}>
                 {option.label}

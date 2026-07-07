@@ -13,7 +13,13 @@ type ErrorStateProps = {
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.message}>
+      <ThemedText
+        type="small"
+        themeColor="textSecondary"
+        style={styles.message}
+        accessibilityRole="alert"
+        accessibilityLiveRegion="polite"
+      >
         {message}
       </ThemedText>
       <Button variant="ghost" label="Retry" onPress={onRetry} />

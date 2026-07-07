@@ -21,6 +21,11 @@ export function NewPostLink({ communityId, isJoined }: NewPostLinkProps) {
     return (
       <ThemedView
         style={[styles.button, styles.buttonDisabled, { backgroundColor: theme.surfaceSelected }]}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel="New post"
+        accessibilityState={{ disabled: true }}
+        accessibilityHint="Join this community to create a post"
       >
         <Ionicons name="add" size={16} color={theme.textSecondary} />
         <ThemedText type="linkPrimary" themeColor="textSecondary">
@@ -34,6 +39,8 @@ export function NewPostLink({ communityId, isJoined }: NewPostLinkProps) {
     <Pressable
       onPress={() => navigation.navigate('CreatePost', { id: communityId })}
       style={StyleSheet.flatten([styles.button, { backgroundColor: theme.surfaceSelected }])}
+      accessibilityRole="button"
+      accessibilityLabel="New post"
     >
       <Ionicons name="add" size={16} color={theme.accent} />
       <ThemedText type="linkPrimary">New Post</ThemedText>

@@ -20,16 +20,33 @@ export function CommunityStatsCard({
 
   return (
     <ThemedView type="surface" elevated style={styles.statsCard}>
-      <ThemedView type="surface" style={styles.statItem}>
-        <Ionicons name="people" size={20} color={theme.accent} />
+      <ThemedView
+        type="surface"
+        style={styles.statItem}
+        accessible
+        accessibilityLabel={`${memberCount.toLocaleString()} members`}
+      >
+        <Ionicons name="people" size={20} color={theme.accent} importantForAccessibility="no" />
         <AnimatedCounter value={memberCount} type="title" style={styles.statValue} />
         <ThemedText type="eyebrow" themeColor="textSecondary">
           Members
         </ThemedText>
       </ThemedView>
       <ThemedView style={[styles.statDivider, { backgroundColor: theme.border }]} />
-      <ThemedView type="surface" style={styles.statItem}>
-        <Ionicons name="chatbubble-ellipses" size={20} color={theme.accent} />
+      <ThemedView
+        type="surface"
+        style={styles.statItem}
+        accessible
+        accessibilityLabel={
+          isPostCountLoading ? 'Post count loading' : `${postCount.toLocaleString()} posts`
+        }
+      >
+        <Ionicons
+          name="chatbubble-ellipses"
+          size={20}
+          color={theme.accent}
+          importantForAccessibility="no"
+        />
         {isPostCountLoading ? (
           <ThemedText type="title" style={styles.statValue}>
             —

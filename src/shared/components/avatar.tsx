@@ -17,6 +17,8 @@ export function Avatar({ name, size = 40 }: AvatarProps) {
   return (
     <ThemedView
       style={[styles.avatar, { width: size, height: size, backgroundColor: theme.accent }]}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
     >
       <ThemedText type="subtitle" themeColor="onAccent">
         {getInitial(name)}

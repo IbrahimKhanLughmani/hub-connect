@@ -80,6 +80,8 @@ function CommunityDetailsContent() {
           onPress={() => navigation.goBack()}
           hitSlop={8}
           style={[styles.errorBackButton, { top: insets.top + Spacing.md }]}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
           <Ionicons name="chevron-back" size={24} color={theme.text} />
         </Pressable>

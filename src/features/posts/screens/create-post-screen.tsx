@@ -61,7 +61,13 @@ export function CreatePostScreen() {
           { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.lg },
         ]}
       >
-        <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.closeButton}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+          style={styles.closeButton}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        >
           <Ionicons name="close" size={24} color={theme.text} />
         </Pressable>
 

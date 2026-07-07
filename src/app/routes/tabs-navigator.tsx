@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LottieView from 'lottie-react-native';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { MainTabParamList } from '@/app/routes/types';
 import { useAuthStore } from '@/features/auth';
@@ -15,7 +15,13 @@ function LogoutButton() {
   const logout = useAuthStore((state) => state.logout);
 
   return (
-    <Pressable onPress={logout} hitSlop={8} style={styles.logoutButton}>
+    <Pressable
+      onPress={logout}
+      hitSlop={8}
+      style={styles.logoutButton}
+      accessibilityRole="button"
+      accessibilityLabel="Log out"
+    >
       <ThemedText type="link" themeColor="text">
         Log out
       </ThemedText>
@@ -25,12 +31,14 @@ function LogoutButton() {
 
 function HomeTabIcon() {
   return (
-    <LottieView
-      source={require('@/assets/animations/home.json')}
-      autoPlay
-      loop
-      style={styles.tabIcon}
-    />
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <LottieView
+        source={require('@/assets/animations/home.json')}
+        autoPlay
+        loop
+        style={styles.tabIcon}
+      />
+    </View>
   );
 }
 

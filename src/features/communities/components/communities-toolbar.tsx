@@ -60,6 +60,9 @@ export function CommunitiesToolbar({
               styles.sortButton,
               { backgroundColor: theme.surface, borderColor: theme.border },
             ]}
+            accessibilityRole="button"
+            accessibilityLabel="Sort communities"
+            accessibilityState={{ expanded: isSortMenuOpen }}
           >
             <Ionicons name="swap-vertical" size={20} color={theme.text} />
           </Pressable>

@@ -22,6 +22,8 @@ export function Button({
   loading,
   danger,
   disabled,
+  accessibilityLabel,
+  accessibilityState,
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
@@ -40,6 +42,9 @@ export function Button({
   return (
     <Pressable
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: isDisabled, busy: loading, ...accessibilityState }}
       style={[
         styles.base,
         variant !== 'ghost' && styles.padded,

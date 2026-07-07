@@ -33,5 +33,9 @@ export function AnimatedCounter({ value, duration = 2000, ...rest }: AnimatedCou
     };
   }, [value, duration]);
 
-  return <ThemedText {...rest}>{displayValue.toLocaleString()}</ThemedText>;
+  return (
+    <ThemedText accessibilityLabel={value.toLocaleString()} {...rest}>
+      {displayValue.toLocaleString()}
+    </ThemedText>
+  );
 }

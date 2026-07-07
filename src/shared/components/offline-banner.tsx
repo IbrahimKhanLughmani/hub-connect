@@ -14,7 +14,12 @@ export function OfflineBanner() {
   }
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor: theme.error }]}>
+    <ThemedView
+      style={[styles.container, { backgroundColor: theme.error }]}
+      accessible
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+    >
       <ThemedText type="smallBold" style={{ color: theme.onError }}>
         You&apos;re offline — showing saved data
       </ThemedText>

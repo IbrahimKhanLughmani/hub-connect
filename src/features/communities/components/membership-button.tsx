@@ -20,6 +20,9 @@ export function MembershipButton({
       loading={isPending}
       icon={isFailed ? undefined : isJoined ? 'checkmark-circle' : 'add-circle-outline'}
       label={isFailed ? 'Retry' : isJoined ? 'Leave' : 'Join'}
+      accessibilityLabel={
+        isFailed ? 'Retry joining community' : isJoined ? 'Leave community' : 'Join community'
+      }
       onPress={onPress}
     />
   );

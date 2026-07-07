@@ -303,8 +303,6 @@ With additional time, these are the areas I'd prioritize next:
   `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
   submitted while offline also survives an app kill/restart before reconnecting, not just a live
   session.
-- **Accessibility pass.** Explicit `accessibilityLabel`/`accessibilityRole` props, focus order, and
-  screen-reader verification haven't been done — the app is usable but not verified accessible.
 - **EAS Build for release artifacts.** GitHub Actions (`.github/workflows/ci.yml`) now runs
   `typecheck`, `lint`, `test`, and `format:check` on every push/PR. Wiring EAS Build for automated
   release builds is the remaining piece.

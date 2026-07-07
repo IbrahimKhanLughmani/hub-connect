@@ -23,6 +23,8 @@ export function ThemedTextInput({
   onFocus,
   onBlur,
   secureTextEntry,
+  placeholder,
+  accessibilityLabel,
   ...rest
 }: ThemedTextInputProps) {
   const theme = useTheme();
@@ -51,8 +53,10 @@ export function ThemedTextInput({
             },
             style,
           ]}
+          placeholder={placeholder}
           placeholderTextColor={theme.textSecondary}
           secureTextEntry={effectiveSecureTextEntry}
+          accessibilityLabel={accessibilityLabel ?? label ?? placeholder}
           onFocus={(event) => {
             setIsFocused(true);
             onFocus?.(event);
@@ -68,6 +72,8 @@ export function ThemedTextInput({
             onPress={() => setIsPasswordVisible((prev) => !prev)}
             hitSlop={8}
             style={styles.trailingIcon}
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? 'Hide password' : 'Show password'}
           >
             <Ionicons
               name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
@@ -78,7 +84,12 @@ export function ThemedTextInput({
         ) : null}
       </View>
       {error ? (
-        <ThemedText type="small" style={{ color: theme.error }}>
+        <ThemedText
+          type="small"
+          style={{ color: theme.error }}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+        >
           {error}
         </ThemedText>
       ) : null}

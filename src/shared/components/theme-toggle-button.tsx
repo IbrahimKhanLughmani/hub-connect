@@ -15,7 +15,15 @@ export function ThemeToggleButton() {
   }
 
   return (
-    <Pressable onPress={handleToggle} hitSlop={8} style={styles.button}>
+    <Pressable
+      onPress={handleToggle}
+      hitSlop={8}
+      style={styles.button}
+      accessibilityRole="button"
+      accessibilityLabel={
+        resolvedScheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+      }
+    >
       <Ionicons name={resolvedScheme === 'dark' ? 'sunny' : 'moon'} size={22} color={theme.text} />
     </Pressable>
   );

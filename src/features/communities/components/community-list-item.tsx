@@ -19,7 +19,11 @@ function CommunityListItemComponent({ community }: CommunityListItemProps) {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   return (
-    <Pressable onPress={() => navigation.navigate('CommunityDetails', { id: community.id })}>
+    <Pressable
+      onPress={() => navigation.navigate('CommunityDetails', { id: community.id })}
+      accessibilityRole="button"
+      accessibilityLabel={`${community.name}, ${community.memberCount.toLocaleString()} members${community.isJoined ? ', joined' : ''}`}
+    >
       <ThemedView type="surface" elevated style={styles.container}>
         <Avatar name={community.name} size={48} />
 

@@ -42,7 +42,12 @@ function CommunityPostItemComponent({ post, onRetry }: CommunityPostItemProps) {
           Posting…
         </ThemedText>
       ) : post.status === PostStatus.Failed ? (
-        <Pressable onPress={() => onRetry?.(post)} style={styles.status}>
+        <Pressable
+          onPress={() => onRetry?.(post)}
+          style={styles.status}
+          accessibilityRole="button"
+          accessibilityLabel="Retry posting"
+        >
           <ThemedText type="eyebrow" style={{ color: theme.error }}>
             Failed · Retry
           </ThemedText>

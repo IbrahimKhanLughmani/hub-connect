@@ -1,6 +1,7 @@
 export enum ApiErrorKind {
   Network = 'network',
   NotFound = 'not-found',
+  Forbidden = 'forbidden',
 }
 
 export class ApiError extends Error {

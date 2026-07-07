@@ -10,4 +10,5 @@ export type AppStackParamList = {
   Tabs: undefined;
   CommunityDetails: { id: string };
   CreatePost: { id: string };
+  EditPost: { communityId: string; postId: string };
 };

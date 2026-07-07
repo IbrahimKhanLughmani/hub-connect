@@ -13,6 +13,7 @@ export interface Theme {
   readonly link: string;
   readonly error: string;
   readonly overlay: string;
+  readonly backdrop: string;
   readonly shadow: string;
 }
 
@@ -30,6 +31,7 @@ export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
     link: '#1E4B6E',
     error: '#C0392B',
     overlay: 'rgba(0, 0, 0, 0.15)',
+    backdrop: 'rgba(0, 0, 0, 0.5)',
     shadow: '#000000',
   },
   dark: {
@@ -45,6 +47,7 @@ export const Colors: Readonly<Record<'light' | 'dark', Theme>> = {
     link: '#5B9BD5',
     error: '#E5675F',
     overlay: 'rgba(0, 0, 0, 0.15)',
+    backdrop: 'rgba(0, 0, 0, 0.6)',
     shadow: '#000000',
   },
 };

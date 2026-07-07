@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
@@ -9,11 +10,21 @@ import { formatRelativeTime } from '@/shared/utils';
 
 type CommunityPostItemProps = {
   post: Post;
+  isOwnPost?: boolean;
   onRetry?: (post: Post) => void;
+  onEdit?: (post: Post) => void;
+  onDelete?: (post: Post) => void;
 };
 
-function CommunityPostItemComponent({ post, onRetry }: CommunityPostItemProps) {
+function CommunityPostItemComponent({
+  post,
+  isOwnPost,
+  onRetry,
+  onEdit,
+  onDelete,
+}: CommunityPostItemProps) {
   const theme = useTheme();
+  const canManage = isOwnPost && post.status === PostStatus.Sent;
 
   return (
     <ThemedView type="surface" elevated style={styles.container}>
@@ -28,6 +39,29 @@ function CommunityPostItemComponent({ post, onRetry }: CommunityPostItemProps) {
             {formatRelativeTime(post.createdAt)}
           </ThemedText>
         </ThemedView>
+
+        {canManage ? (
+          <ThemedView type="surface" style={styles.actions}>
+            <Pressable
+              onPress={() => onEdit?.(post)}
+              hitSlop={8}
+              style={styles.actionButton}
+              accessibilityRole="button"
+              accessibilityLabel="Edit post"
+            >
+              <Ionicons name="pencil-outline" size={16} color={theme.textSecondary} />
+            </Pressable>
+            <Pressable
+              onPress={() => onDelete?.(post)}
+              hitSlop={8}
+              style={styles.actionButton}
+              accessibilityRole="button"
+              accessibilityLabel="Delete post"
+            >
+              <Ionicons name="trash-outline" size={16} color={theme.error} />
+            </Pressable>
+          </ThemedView>
+        ) : null}
       </ThemedView>
 
       <ThemedText type="smallBold" style={styles.title}>
@@ -75,6 +109,13 @@ const styles = StyleSheet.create({
   authorInfo: {
     flex: 1,
     gap: 2,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+  },
+  actionButton: {
+    padding: 4,
   },
   title: {
     marginTop: 2,

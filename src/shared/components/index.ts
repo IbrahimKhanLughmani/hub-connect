@@ -1,6 +1,7 @@
 export * from './animated-counter';
 export * from './avatar';
 export * from './button';
+export * from './confirm-dialog';
 export * from './error-boundary';
 export * from './error-state';
 export * from './loading-indicator';

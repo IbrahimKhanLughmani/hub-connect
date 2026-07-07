@@ -303,9 +303,6 @@ With additional time, these are the areas I'd prioritize next:
   `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
   submitted while offline also survives an app kill/restart before reconnecting, not just a live
   session.
-- **EAS Build for release artifacts.** GitHub Actions (`.github/workflows/ci.yml`) now runs
-  `typecheck`, `lint`, `test`, and `format:check` on every push/PR. Wiring EAS Build for automated
-  release builds is the remaining piece.
 - **Real API integration.** Swap the in-process mock services for a real backend or a proper local
   mock server, now that the `queryFn`/`mutationFn` boundary already isolates that concern.
 - **Analytics/event tracking.** No usage analytics are wired in; would add a lightweight event layer

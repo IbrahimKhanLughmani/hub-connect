@@ -269,9 +269,6 @@ With additional time, these are the areas I'd prioritize next:
   `resumePausedMutations` pattern used for join/leave to post creation, so a post drafted and
   submitted while offline also survives an app kill/restart before reconnecting, not just a live
   session.
-- **Duplicate-submission hardening.** The create-post form now guards against a fast double-tap via
-  an explicit `isPending` check, but a broader audit of other mutation-triggering buttons
-  (join/leave) for the same race would be worthwhile.
 - **Accessibility pass.** Explicit `accessibilityLabel`/`accessibilityRole` props, focus order, and
   screen-reader verification haven't been done — the app is usable but not verified accessible.
 - **CI/CD.** Wire up a GitHub Actions workflow to run `tsc`, `lint`, and tests on every PR, and

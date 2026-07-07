@@ -38,7 +38,7 @@ function CommunityDetailsContent() {
   const membershipFailed = joinMutation.isError || leaveMutation.isError;
 
   function handleToggleMembership() {
-    if (!community) return;
+    if (!community || membershipPending) return;
 
     if (community.isJoined) {
       leaveMutation.mutate(community.id);
